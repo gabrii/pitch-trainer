@@ -110,6 +110,16 @@ export function SettingsProvider({ children }) {
     );
   }, [updateProfiles]);
 
+  const resetProfile = useCallback(() => {
+    updateProfiles(prev =>
+      prev.map(p =>
+        p.id === activeId
+          ? { ...p, settings: { ...DEFAULT_SETTINGS } }
+          : p,
+      ),
+    );
+  }, [activeId, updateProfiles]);
+
   const value = useMemo(() => ({
     settings,
     derived,
@@ -120,7 +130,8 @@ export function SettingsProvider({ children }) {
     createProfile,
     deleteProfile,
     renameProfile,
-  }), [settings, derived, set, profiles, activeId, switchProfile, createProfile, deleteProfile, renameProfile]);
+    resetProfile,
+  }), [settings, derived, set, profiles, activeId, switchProfile, createProfile, deleteProfile, renameProfile, resetProfile]);
 
   return (
     <SettingsContext.Provider value={value}>

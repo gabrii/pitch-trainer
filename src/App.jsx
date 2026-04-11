@@ -14,9 +14,9 @@ import ProfileSelector from './components/ProfileSelector';
 const PHASE_STYLES = {
   idle: null,
   playing_tone: { label: 'Playing target tone…', bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', dot: 'bg-cyan-400' },
-  listening: { label: 'Listening — sing!', bg: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-700', dot: 'bg-teal-400' },
+  listening: { label: 'Listening — sing!', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', dot: 'bg-blue-400' },
   success: { label: 'Nailed it!', bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-400' },
-  silence: { label: 'Silence detected — replaying…', bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-600', dot: 'bg-slate-400' },
+  silence: { label: 'Silence detected — replaying…', bg: 'bg-zinc-50', border: 'border-zinc-200', text: 'text-zinc-600', dot: 'bg-zinc-400' },
   replaying_user: { label: 'Playing your note…', bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', dot: 'bg-yellow-400' },
   replaying_target: { label: 'Playing target note…', bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', dot: 'bg-cyan-400' },
 };
@@ -24,10 +24,10 @@ const PHASE_STYLES = {
 function Slider({ label, value, onChange, min, max, step, format }) {
   return (
     <div className="flex items-center gap-3">
-      <label className="text-sm text-slate-500 w-20 shrink-0">{label}</label>
+      <label className="text-sm text-zinc-500 w-20 shrink-0">{label}</label>
       <input type="range" min={min} max={max} step={step} value={value}
-        onChange={e => onChange(+e.target.value)} className="flex-1 accent-teal-500" />
-      <span className="text-xs text-slate-400 w-10 text-right">{format(value)}</span>
+        onChange={e => onChange(+e.target.value)} className="flex-1 accent-violet-500" />
+      <span className="text-xs text-zinc-400 w-10 text-right">{format(value)}</span>
     </div>
   );
 }
@@ -35,13 +35,13 @@ function Slider({ label, value, onChange, min, max, step, format }) {
 function ToggleGroup({ label, value, onChange, options }) {
   return (
     <div className="flex items-center gap-3">
-      <label className="text-sm text-slate-500 w-20 shrink-0">{label}</label>
-      <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-semibold">
+      <label className="text-sm text-zinc-500 w-20 shrink-0">{label}</label>
+      <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-xs font-semibold">
         {options.map(([key, text]) => (
           <button
             key={key}
             onClick={() => onChange(key)}
-            className={`px-2.5 py-1.5 transition-colors ${value === key ? 'bg-teal-400 text-teal-900' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+            className={`px-2.5 py-1.5 transition-colors ${value === key ? 'bg-violet-500 text-white' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
           >{text}</button>
         ))}
       </div>
@@ -132,7 +132,7 @@ export default function App() {
     <div className="max-w-4xl mx-auto p-4 space-y-5">
       <header>
         <h1 className="text-3xl font-extrabold tracking-tight">Pitch Trainer</h1>
-        <p className="text-slate-500 text-sm">Pick a note, hear it, match it with your voice.</p>
+        <p className="text-zinc-500 text-sm">Pick a note, hear it, match it with your voice.</p>
       </header>
 
       {micError && (
@@ -142,7 +142,7 @@ export default function App() {
       )}
 
       {/* Configuration */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5 space-y-4 shadow-sm">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-bold">Configuration</h2>
@@ -150,7 +150,7 @@ export default function App() {
           </div>
           <div className="flex gap-2">
             {!micStarted ? (
-              <button onClick={handleStartMic} className="px-4 py-2 rounded-full bg-teal-400 text-teal-900 font-bold text-sm hover:-translate-y-0.5 transition-transform">
+              <button onClick={handleStartMic} className="px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
                 Turn on mic
               </button>
             ) : (
@@ -160,16 +160,16 @@ export default function App() {
               </span>
             )}
             {micStarted && !isRunning && (
-              <button onClick={handlePlay} className="px-4 py-2 rounded-full bg-teal-400 text-teal-900 font-bold text-sm hover:-translate-y-0.5 transition-transform">
+              <button onClick={handlePlay} className="px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
                 Play
               </button>
             )}
             {isRunning && (
               <>
-                <button onClick={handlePlay} className="px-4 py-2 rounded-full bg-violet-100 border border-violet-200 text-violet-700 font-bold text-sm hover:-translate-y-0.5 transition-transform">
+                <button onClick={handlePlay} className="px-4 py-2 rounded-full bg-amber-100 border border-amber-200 text-amber-700 font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
                   Shuffle
                 </button>
-                <button onClick={exercise.stop} className="px-4 py-2 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-bold text-sm hover:-translate-y-0.5 transition-transform">
+                <button onClick={exercise.stop} className="px-4 py-2 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
                   Stop
                 </button>
               </>
@@ -195,24 +195,24 @@ export default function App() {
         </div>
 
         {/* Row 2: Collapsible settings */}
-        <details className="rounded-xl border border-slate-200 bg-slate-50">
-          <summary className="px-4 py-2 cursor-pointer text-sm font-semibold text-slate-500 select-none">
+        <details className="rounded-xl border border-zinc-200 bg-zinc-50">
+          <summary className="px-4 py-2 cursor-pointer text-sm font-semibold text-zinc-500 select-none">
             Advanced Settings
           </summary>
           <div className="px-4 pb-3 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Input</h3>
+                <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Input</h3>
                 {/* Level meter */}
                 <div className="flex items-center gap-3">
-                  <label className="text-sm text-slate-500 w-20 shrink-0">Level</label>
-                  <div className="flex-1 h-2.5 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
+                  <label className="text-sm text-zinc-500 w-20 shrink-0">Level</label>
+                  <div className="flex-1 h-2.5 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden">
                     {(() => {
                       const gatePercent = ((settings.noiseGateDb - SETTINGS.meterFloorDb) / (SETTINGS.meterCeilDb - SETTINGS.meterFloorDb)) * 100;
                       const level = Math.min(100, detector.state.inputLevel ?? 0);
                       return (
                         <div
-                          className={`h-full rounded-full transition-all duration-100 ${level >= gatePercent ? 'bg-emerald-400' : 'bg-slate-300'}`}
+                          className={`h-full rounded-full transition-all duration-100 ${level >= gatePercent ? 'bg-emerald-400' : 'bg-zinc-300'}`}
                           style={{ width: `${level}%` }}
                         />
                       );
@@ -229,7 +229,7 @@ export default function App() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Output</h3>
+                <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Output</h3>
                 <Slider label="Volume" value={settings.toneVolume} onChange={v => set('toneVolume', v)}
                   min={0.05} max={1} step={0.05} format={v => `${Math.round(v * 100)}%`} />
                 <Slider label="Tone" value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
@@ -254,7 +254,7 @@ export default function App() {
       </div>
 
       {/* Hold progress bar */}
-      <div className="relative h-3 rounded-full bg-slate-100 border border-slate-200 overflow-hidden"
+      <div className="relative h-3 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden"
            style={{ visibility: (isRunning && phase === 'listening') || phase === 'success' ? 'visible' : 'hidden' }}>
         <div
           className="h-full rounded-full transition-[width] duration-75 bg-green-400"
@@ -279,7 +279,7 @@ export default function App() {
       />
 
       {/* Feedback */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <FeedbackPanel
           detectedFreq={detector.state.frequency}
           detectedMidi={displayedMidi}

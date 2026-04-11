@@ -69,7 +69,7 @@ export default function AccuracyChart({ centsFromTarget, hasDetection, height = 
     }
 
     // Center line
-    ctx.strokeStyle = 'rgba(51, 65, 85, 0.3)';
+    ctx.strokeStyle = 'rgba(63, 63, 70, 0.3)';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -155,7 +155,7 @@ export default function AccuracyChart({ centsFromTarget, hasDetection, height = 
   return (
     <canvas
       ref={canvasRef}
-      className={`w-full border border-slate-200 ${roundedRight ? 'rounded-lg' : 'rounded-l-lg border-r-0'}`}
+      className={`w-full border border-zinc-200 ${roundedRight ? 'rounded-lg' : 'rounded-l-lg border-r-0'}`}
       style={{ height }}
     />
   );

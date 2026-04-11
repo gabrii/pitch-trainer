@@ -68,11 +68,11 @@ export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, 
   return (
     <div className="space-y-4">
       {/* Main offset feedback */}
-      <div className={`rounded-xl border p-5 text-center transition-colors duration-200 min-h-[84px] flex items-center justify-center ${offset ? LEVEL_BG[offset.level] : 'bg-slate-50 border-slate-200'}`}>
+      <div className={`rounded-xl border p-5 text-center transition-colors duration-200 min-h-[84px] flex items-center justify-center ${offset ? LEVEL_BG[offset.level] : 'bg-zinc-50 border-zinc-200'}`}>
         {offset ? (
           <p className="text-2xl font-bold">{offset.text}</p>
         ) : (
-          <p className="text-lg text-slate-400">{statusMessages[status] || 'Sing a note…'}</p>
+          <p className="text-lg text-zinc-400">{statusMessages[status] || 'Sing a note…'}</p>
         )}
       </div>
 
@@ -83,17 +83,17 @@ export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, 
             {hasDetection ? (
               <NoteDisplay midi={detectedMidi} size="large" notation={notation} />
             ) : (
-              <span className="text-6xl font-extrabold text-slate-200">--</span>
+              <span className="text-6xl font-extrabold text-zinc-200">--</span>
             )}
           </div>
-          <div className="text-sm text-slate-400 space-y-1.5 mt-2 min-w-32">
+          <div className="text-sm text-zinc-400 space-y-1.5 mt-2 min-w-32">
             <div>{hasDetection ? `${detectedFreq.toFixed(2)} Hz` : '0.00 Hz'}</div>
             <div>Confidence: {confidence != null ? `${Math.round(confidence * 100)}%` : '--'}</div>
           </div>
         </div>
 
         {/* Scale labels */}
-        <div className="flex flex-col justify-between text-xs text-slate-400 py-0.5 shrink-0">
+        <div className="flex flex-col justify-between text-xs text-zinc-400 py-0.5 shrink-0">
           <span>+50</span>
           <span>0</span>
           <span>-50</span>
@@ -125,7 +125,7 @@ export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, 
                }}>
             {/* Ball needle */}
             <div
-              className={`absolute left-1/2 w-3 h-3 rounded-full -translate-x-1/2 translate-y-1/2 shadow-md z-20 transition-all duration-150 ${hasDetection ? NEEDLE_BG[band] : 'bg-white border border-slate-200'}`}
+              className={`absolute left-1/2 w-3 h-3 rounded-full -tranzinc-x-1/2 tranzinc-y-1/2 shadow-md z-20 transition-all duration-150 ${hasDetection ? NEEDLE_BG[band] : 'bg-white border border-zinc-200'}`}
               style={{ bottom: `${hasDetection ? needlePercent(centsFromNearest) : 50}%` }}
             />
           </div>

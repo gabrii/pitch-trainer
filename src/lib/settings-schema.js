@@ -2,9 +2,9 @@ export const DEFAULT_SETTINGS = {
   notation: 'scientific',
   lowerMidi: 40,  // E2
   upperMidi: 50,  // D3
-  noiseGateDb: -35,
+  noiseGateDb: -40,
   inputGain: 1.0,
-  toneVolume: 0.35,
+  toneVolume: 0.9,
   difficulty: 'hard',
   holdDurationS: 3,
   silenceTimeoutS: 2,

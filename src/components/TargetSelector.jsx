@@ -33,13 +33,13 @@ export default function TargetSelector({ lowerMidi, upperMidi, onLowerChange, on
     }
   }
 
-  const firstSelect = 'appearance-none border border-slate-200 rounded-l-lg px-1.5 py-1.5 font-semibold bg-white text-sm cursor-pointer border-r-0 text-center';
-  const lastSelect = 'appearance-none border border-slate-200 rounded-r-lg px-1.5 py-1.5 font-semibold bg-white text-sm cursor-pointer w-9 text-center';
+  const firstSelect = 'appearance-none border border-zinc-200 rounded-l-lg px-1.5 py-1.5 font-semibold bg-white text-sm cursor-pointer border-r-0 text-center';
+  const lastSelect = 'appearance-none border border-zinc-200 rounded-r-lg px-1.5 py-1.5 font-semibold bg-white text-sm cursor-pointer w-9 text-center';
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-sm text-slate-500 w-10">From</span>
+        <span className="text-sm text-zinc-500 w-10">From</span>
         <div className="inline-flex">
           <select className={firstSelect} value={lower.note} onChange={e => handleNoteChange('lower', e.target.value)}>
             {NOTE_NAMES.map((n, i) => <option key={n} value={n}>{notation === 'solfege' ? SOLFEGE_NAMES[i] : n}</option>)}
@@ -48,9 +48,9 @@ export default function TargetSelector({ lowerMidi, upperMidi, onLowerChange, on
             {octaves.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
         </div>
-        <span className="text-xs text-slate-400">{lowerFreq.toFixed(1)} Hz</span>
+        <span className="text-xs text-zinc-400">{lowerFreq.toFixed(1)} Hz</span>
 
-        <span className="text-sm text-slate-500 w-6 text-center">to</span>
+        <span className="text-sm text-zinc-500 w-6 text-center">to</span>
         <div className="inline-flex">
           <select className={firstSelect} value={upper.note} onChange={e => handleNoteChange('upper', e.target.value)}>
             {NOTE_NAMES.map((n, i) => <option key={n} value={n}>{notation === 'solfege' ? SOLFEGE_NAMES[i] : n}</option>)}
@@ -59,11 +59,11 @@ export default function TargetSelector({ lowerMidi, upperMidi, onLowerChange, on
             {octaves.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
         </div>
-        <span className="text-xs text-slate-400">{upperFreq.toFixed(1)} Hz</span>
+        <span className="text-xs text-zinc-400">{upperFreq.toFixed(1)} Hz</span>
       </div>
 
       {isSingle && (
-        <p className="text-xs text-slate-400">Single note mode — change "To" to define a range.</p>
+        <p className="text-xs text-zinc-400">Single note mode — change "To" to define a range.</p>
       )}
     </div>
   );

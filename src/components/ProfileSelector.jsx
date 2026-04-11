@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, RotateCcw } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import Modal from './Modal';
 
 export default function ProfileSelector() {
-  const { profiles, activeId, switchProfile, createProfile, deleteProfile, renameProfile } = useSettings();
+  const { profiles, activeId, switchProfile, createProfile, deleteProfile, renameProfile, resetProfile } = useSettings();
   const [showRename, setShowRename] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showReset, setShowReset] = useState(false);
   const [renameValue, setRenameValue] = useState('');
 
   const activeProfile = profiles.find(p => p.id === activeId);
@@ -29,13 +30,13 @@ export default function ProfileSelector() {
   };
 
   const btnBase = 'p-1.5 transition-colors';
-  const btnNormal = `${btnBase} text-slate-500 hover:bg-slate-50`;
-  const btnDanger = `${btnBase} text-red-500 hover:bg-red-50`;
-  const divider = 'border-r border-slate-200';
+  const btnNormal = `${btnBase} text-zinc-500 hover:bg-zinc-50`;
+  const btnDanger = `${btnBase} text-rose-500 hover:bg-rose-50`;
+  const divider = 'border-r border-zinc-200';
 
   return (
     <>
-      <div className="inline-flex items-center rounded-lg border border-slate-200 overflow-hidden">
+      <div className="inline-flex items-center rounded-lg border border-zinc-200 overflow-hidden">
         <select
           value={activeId}
           onChange={e => switchProfile(e.target.value)}
@@ -53,6 +54,10 @@ export default function ProfileSelector() {
         <button onClick={handleRenameOpen} className={btnNormal} title="Rename profile">
           <Pencil size={14} />
         </button>
+        <div className={divider} />
+        <button onClick={() => setShowReset(true)} className={btnNormal} title="Reset to defaults">
+          <RotateCcw size={14} />
+        </button>
         {profiles.length > 1 && (
           <>
             <div className={divider} />
@@ -69,26 +74,38 @@ export default function ProfileSelector() {
           value={renameValue}
           onChange={e => setRenameValue(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') handleRenameConfirm(); }}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
+          className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm"
           autoFocus
         />
         <div className="flex justify-end gap-2">
           <button onClick={() => setShowRename(false)}
-            className="px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-50">Cancel</button>
+            className="px-3 py-1.5 rounded-lg text-sm text-zinc-500 hover:bg-zinc-50">Cancel</button>
           <button onClick={handleRenameConfirm}
-            className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-teal-400 text-teal-900">Rename</button>
+            className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-violet-500 text-white">Rename</button>
         </div>
       </Modal>
 
       <Modal open={showDelete} onClose={() => setShowDelete(false)} title="Delete Profile">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-zinc-600">
           Delete <strong>{activeProfile?.name}</strong>? This can't be undone.
         </p>
         <div className="flex justify-end gap-2">
           <button onClick={() => setShowDelete(false)}
-            className="px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-50">Cancel</button>
+            className="px-3 py-1.5 rounded-lg text-sm text-zinc-500 hover:bg-zinc-50">Cancel</button>
           <button onClick={handleDeleteConfirm}
-            className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-500 text-white">Delete</button>
+            className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-rose-500 text-white">Delete</button>
+        </div>
+      </Modal>
+
+      <Modal open={showReset} onClose={() => setShowReset(false)} title="Reset Settings">
+        <p className="text-sm text-zinc-600">
+          Reset <strong>{activeProfile?.name}</strong> to default settings? Your current settings will be lost.
+        </p>
+        <div className="flex justify-end gap-2">
+          <button onClick={() => setShowReset(false)}
+            className="px-3 py-1.5 rounded-lg text-sm text-zinc-500 hover:bg-zinc-50">Cancel</button>
+          <button onClick={() => { resetProfile(); setShowReset(false); }}
+            className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-violet-500 text-white">Reset</button>
         </div>
       </Modal>
     </>

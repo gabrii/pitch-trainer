@@ -15,10 +15,10 @@ function colorClass(isBlack, isTarget, isDetected) {
 }
 
 function labelColor(isBlack, isTarget, isDetected, harmonicIntensity, inRange) {
-  if (!inRange) return isBlack ? 'text-slate-200 opacity-50' : 'text-slate-300 opacity-50';
-  if (isBlack && (isTarget || isDetected)) return 'text-slate-800';
-  if (isBlack) return harmonicIntensity > 0.3 ? 'text-slate-200' : 'text-slate-300';
-  return 'text-slate-500';
+  if (!inRange) return isBlack ? 'text-zinc-200 opacity-50' : 'text-zinc-300 opacity-50';
+  if (isBlack && (isTarget || isDetected)) return 'text-zinc-800';
+  if (isBlack) return harmonicIntensity > 0.3 ? 'text-zinc-200' : 'text-zinc-300';
+  return 'text-zinc-500';
 }
 
 export default function PianoKey({ isBlack, isTarget, isDetected, harmonicIntensity = 0, inRange = true, label, onClick }) {
@@ -42,14 +42,14 @@ export default function PianoKey({ isBlack, isTarget, isDetected, harmonicIntens
   } else {
     const disabled = !inRange;
     colorCls = isBlack
-      ? (disabled ? 'bg-slate-400 border-slate-300' : 'bg-slate-800 border-slate-900')
-      : (disabled ? 'bg-slate-100 border-slate-300' : 'bg-white border-slate-300');
+      ? (disabled ? 'bg-zinc-400 border-zinc-300' : 'bg-zinc-800 border-zinc-900')
+      : (disabled ? 'bg-zinc-100 border-zinc-300' : 'bg-white border-zinc-300');
   }
 
   return (
     <button className={`${base} ${borderStyle} ${colorCls}`} style={bgStyle} onClick={onClick}>
       {label && (
-        <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[8px] font-bold select-none pointer-events-none leading-none ${labelColor(isBlack, isTarget, isDetected, harmonicIntensity, inRange)}`}>
+        <span className={`absolute bottom-0.5 left-1/2 -tranzinc-x-1/2 text-[8px] font-bold select-none pointer-events-none leading-none ${labelColor(isBlack, isTarget, isDetected, harmonicIntensity, inRange)}`}>
           {label}
         </span>
       )}
