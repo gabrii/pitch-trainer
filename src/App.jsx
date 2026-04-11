@@ -22,11 +22,13 @@ const PHASE_STYLES = {
 };
 
 function Slider({ label, value, onChange, min, max, step, format }) {
+  const pct = ((value - min) / (max - min)) * 100;
   return (
     <div className="flex items-center gap-3">
       <label className="text-sm text-zinc-500 w-20 shrink-0">{label}</label>
       <input type="range" min={min} max={max} step={step} value={value}
-        onChange={e => onChange(+e.target.value)} className="flex-1 accent-violet-500" />
+        onChange={e => onChange(+e.target.value)} className="flex-1"
+        style={{ background: `linear-gradient(to right, #8b5cf6 ${pct}%, #e4e4e7 ${pct}%)` }} />
       <span className="text-xs text-zinc-400 w-10 text-right">{format(value)}</span>
     </div>
   );
