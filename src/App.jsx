@@ -202,7 +202,7 @@ export default function App() {
                   <option key={key} value={key}>{text}</option>
                 ))}
               </select>
-              <span className="text-xs text-zinc-400">±{DIFFICULTY_PRESETS[settings.difficulty]?.visualGood}¢</span>
+              <span className="text-xs text-zinc-400">±{DIFFICULTY_PRESETS[settings.difficulty]?.visualGood} cents</span>
             </div>
           </div>
         </div>
