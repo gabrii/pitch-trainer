@@ -18,9 +18,9 @@ export const DIFFICULTY_PRESETS = {
 };
 
 export const DIFFICULTY_LABELS = {
-  easy:   'Easy (~10¢)',
-  medium: 'Medium (~8¢)',
-  hard:   'Hard (~5¢)',
+  easy:   'Easy',
+  medium: 'Medium',
+  hard:   'Hard',
 };
 
 export function derivedFromSettings(settings) {

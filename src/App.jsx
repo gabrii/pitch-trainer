@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { SETTINGS } from './lib/constants';
-import { DIFFICULTY_LABELS } from './lib/settings-schema';
+import { DIFFICULTY_LABELS, DIFFICULTY_PRESETS } from './lib/settings-schema';
 import { useSettings } from './contexts/SettingsContext';
 import { useAudioContext } from './hooks/useAudioContext';
 import { usePitchDetector } from './hooks/usePitchDetector';
@@ -191,8 +191,19 @@ export default function App() {
           <div className="space-y-2">
             <ToggleGroup label="Notation" value={settings.notation} onChange={v => set('notation', v)}
               options={[['scientific', 'Scientific'], ['solfege', 'Solfege']]} />
-            <ToggleGroup label="Difficulty" value={settings.difficulty} onChange={v => set('difficulty', v)}
-              options={Object.entries(DIFFICULTY_LABELS)} />
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-zinc-500 w-20 shrink-0">Difficulty</label>
+              <select
+                value={settings.difficulty}
+                onChange={e => set('difficulty', e.target.value)}
+                className="appearance-none border border-zinc-200 rounded-lg px-2.5 py-1.5 font-semibold bg-white text-sm cursor-pointer"
+              >
+                {Object.entries(DIFFICULTY_LABELS).map(([key, text]) => (
+                  <option key={key} value={key}>{text}</option>
+                ))}
+              </select>
+              <span className="text-xs text-zinc-400">±{DIFFICULTY_PRESETS[settings.difficulty]?.visualGood}¢</span>
+            </div>
           </div>
         </div>
 
