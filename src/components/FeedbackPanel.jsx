@@ -125,7 +125,7 @@ export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, 
                }}>
             {/* Ball needle */}
             <div
-              className={`absolute left-1/2 w-3 h-3 rounded-full -tranzinc-x-1/2 tranzinc-y-1/2 shadow-md z-20 transition-all duration-150 ${hasDetection ? NEEDLE_BG[band] : 'bg-white border border-zinc-200'}`}
+              className={`absolute left-1/2 w-3 h-3 rounded-full -translate-x-1/2 translate-y-1/2 shadow-md z-20 transition-all duration-150 ${hasDetection ? NEEDLE_BG[band] : 'bg-white border border-zinc-200'}`}
               style={{ bottom: `${hasDetection ? needlePercent(centsFromNearest) : 50}%` }}
             />
           </div>

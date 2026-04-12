@@ -10,6 +10,7 @@ import Piano from './components/Piano';
 import TargetSelector from './components/TargetSelector';
 import FeedbackPanel from './components/FeedbackPanel';
 import ProfileSelector from './components/ProfileSelector';
+import { Play, SkipForward, Square, Mic } from 'lucide-react';
 
 const PHASE_STYLES = {
   idle: null,
@@ -38,7 +39,7 @@ function ToggleGroup({ label, value, onChange, options }) {
   return (
     <div className="flex items-center gap-3">
       <label className="text-sm text-zinc-500 w-20 shrink-0">{label}</label>
-      <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-xs font-semibold">
+      <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-sm font-semibold">
         {options.map(([key, text]) => (
           <button
             key={key}
@@ -152,7 +153,8 @@ export default function App() {
           </div>
           <div className="flex gap-2">
             {!micStarted ? (
-              <button onClick={handleStartMic} className="px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
+              <button onClick={handleStartMic} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm">
+                <Mic size={14} />
                 Turn on mic
               </button>
             ) : (
@@ -160,21 +162,6 @@ export default function App() {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-300/50" />
                 Mic on
               </span>
-            )}
-            {micStarted && !isRunning && (
-              <button onClick={handlePlay} className="px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
-                Play
-              </button>
-            )}
-            {isRunning && (
-              <>
-                <button onClick={handlePlay} className="px-4 py-2 rounded-full bg-amber-100 border border-amber-200 text-amber-700 font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
-                  Shuffle
-                </button>
-                <button onClick={exercise.stop} className="px-4 py-2 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold text-sm hover:-tranzinc-y-0.5 transition-transform">
-                  Stop
-                </button>
-              </>
             )}
           </div>
         </div>
@@ -255,28 +242,37 @@ export default function App() {
         </details>
       </div>
 
-      {/* Phase indicator */}
-      <div className="text-center min-h-[36px] flex items-center justify-center">
-        {ps && (
+      {/* Phase indicator + controls */}
+      <div className="flex items-center justify-center gap-2 min-h-[36px] flex-wrap">
+        {ps ? (
           <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${ps.bg} border ${ps.border} ${ps.text} text-sm font-semibold`}>
             <span className={`w-2 h-2 rounded-full ${ps.dot} animate-pulse`} />
             {ps.label}
             {hint && <span className="font-normal ml-1">— {hint}</span>}
           </span>
-        )}
-      </div>
-
-      {/* Hold progress bar */}
-      <div className="relative h-3 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden"
-           style={{ visibility: (isRunning && phase === 'listening') || phase === 'success' ? 'visible' : 'hidden' }}>
-        <div
-          className="h-full rounded-full transition-[width] duration-75 bg-green-400"
-          style={{ width: `${phase === 'success' ? 100 : Math.round(holdProgress * 100)}%` }}
-        />
-        {(holdProgress > 0 || phase === 'success') && (
-          <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold ${phase === 'success' ? 'text-green-900' : 'text-green-800 mix-blend-multiply'}`}>
-            {phase === 'success' ? 'Nailed it!' : holdProgress < 1 ? 'Hold it…' : 'Match!'}
+        ) : (
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-50 border border-zinc-200 text-zinc-400 text-sm font-semibold">
+            <span className="w-2 h-2 rounded-full bg-zinc-300" />
+            Idle
           </span>
+        )}
+        {micStarted && !isRunning && (
+          <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-violet-500 text-white font-semibold text-sm">
+            <Play size={14} />
+            Play
+          </button>
+        )}
+        {isRunning && (
+          <>
+            <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700 font-semibold text-sm">
+              <SkipForward size={14} />
+              Next
+            </button>
+            <button onClick={exercise.stop} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 font-semibold text-sm">
+              <Square size={14} />
+              Stop
+            </button>
+          </>
         )}
       </div>
 
@@ -290,6 +286,19 @@ export default function App() {
         onKeyClick={handleKeyClick}
         notation={settings.notation}
       />
+
+      {/* Hold progress bar */}
+      <div className="relative h-3 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden">
+        <div
+          className="h-full rounded-full transition-[width] duration-75 bg-green-400"
+          style={{ width: `${phase === 'success' ? 100 : Math.round(holdProgress * 100)}%` }}
+        />
+        {(holdProgress > 0 || phase === 'success') && (
+          <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold ${phase === 'success' ? 'text-green-900' : 'text-green-800 mix-blend-multiply'}`}>
+            {phase === 'success' ? 'Nailed it!' : holdProgress < 1 ? 'Hold it…' : 'Match!'}
+          </span>
+        )}
+      </div>
 
       {/* Feedback */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">

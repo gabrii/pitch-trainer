@@ -49,7 +49,7 @@ export default function PianoKey({ isBlack, isTarget, isDetected, harmonicIntens
   return (
     <button className={`${base} ${borderStyle} ${colorCls}`} style={bgStyle} onClick={onClick}>
       {label && (
-        <span className={`absolute bottom-0.5 left-1/2 -tranzinc-x-1/2 text-[8px] font-bold select-none pointer-events-none leading-none ${labelColor(isBlack, isTarget, isDetected, harmonicIntensity, inRange)}`}>
+        <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[8px] font-bold select-none pointer-events-none leading-none ${labelColor(isBlack, isTarget, isDetected, harmonicIntensity, inRange)}`}>
           {label}
         </span>
       )}
