@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, RotateCcw } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import Modal from './Modal';
+import { Tooltip } from './Tooltip';
 
 export default function ProfileSelector() {
   const { profiles, activeId, switchProfile, createProfile, deleteProfile, renameProfile, resetProfile } = useSettings();
@@ -37,33 +38,43 @@ export default function ProfileSelector() {
   return (
     <>
       <div className="inline-flex items-center rounded-lg border border-zinc-200 overflow-hidden">
-        <select
-          value={activeId}
-          onChange={e => switchProfile(e.target.value)}
-          className="appearance-none px-2.5 py-1.5 text-sm font-semibold bg-white cursor-pointer border-none outline-none"
-        >
-          {profiles.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <Tooltip content="Switch between saved configuration profiles. Each profile stores its own settings independently.">
+          <select
+            value={activeId}
+            onChange={e => switchProfile(e.target.value)}
+            className="appearance-none px-2.5 py-1.5 text-sm font-semibold bg-white cursor-pointer border-none outline-none"
+          >
+            {profiles.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </Tooltip>
         <div className={divider} />
-        <button onClick={createProfile} className={btnNormal} title="New profile">
-          <Plus size={14} />
-        </button>
+        <Tooltip content="Create a new profile with default settings.">
+          <button onClick={createProfile} className={btnNormal}>
+            <Plus size={14} />
+          </button>
+        </Tooltip>
         <div className={divider} />
-        <button onClick={handleRenameOpen} className={btnNormal} title="Rename profile">
-          <Pencil size={14} />
-        </button>
+        <Tooltip content="Rename the current profile.">
+          <button onClick={handleRenameOpen} className={btnNormal}>
+            <Pencil size={14} />
+          </button>
+        </Tooltip>
         <div className={divider} />
-        <button onClick={() => setShowReset(true)} className={btnNormal} title="Reset to defaults">
-          <RotateCcw size={14} />
-        </button>
+        <Tooltip content="Reset all settings in this profile back to their defaults.">
+          <button onClick={() => setShowReset(true)} className={btnNormal}>
+            <RotateCcw size={14} />
+          </button>
+        </Tooltip>
         {profiles.length > 1 && (
           <>
             <div className={divider} />
-            <button onClick={() => setShowDelete(true)} className={btnDanger} title="Delete profile">
-              <Trash2 size={14} />
-            </button>
+            <Tooltip content="Permanently delete this profile. This cannot be undone.">
+              <button onClick={() => setShowDelete(true)} className={btnDanger}>
+                <Trash2 size={14} />
+              </button>
+            </Tooltip>
           </>
         )}
       </div>

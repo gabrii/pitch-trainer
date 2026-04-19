@@ -10,6 +10,7 @@ import Piano from './components/Piano';
 import TargetSelector from './components/TargetSelector';
 import FeedbackPanel from './components/FeedbackPanel';
 import ProfileSelector from './components/ProfileSelector';
+import { Tooltip, Tip } from './components/Tooltip';
 import { Play, SkipForward, Square, Mic } from 'lucide-react';
 
 const PHASE_STYLES = {
@@ -22,11 +23,14 @@ const PHASE_STYLES = {
   replaying_target: { label: 'Playing target note…', bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', dot: 'bg-cyan-400' },
 };
 
-function Slider({ label, value, onChange, min, max, step, format }) {
+function Slider({ label, tip, value, onChange, min, max, step, format }) {
   const pct = ((value - min) / (max - min)) * 100;
   return (
     <div className="flex items-center gap-3">
-      <label className="text-sm text-zinc-500 w-20 shrink-0">{label}</label>
+      <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
+        {label}
+        {tip && <Tip content={tip} />}
+      </label>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(+e.target.value)} className="flex-1"
         style={{ background: `linear-gradient(to right, #8b5cf6 ${pct}%, #e4e4e7 ${pct}%)` }} />
@@ -35,10 +39,13 @@ function Slider({ label, value, onChange, min, max, step, format }) {
   );
 }
 
-function ToggleGroup({ label, value, onChange, options }) {
+function ToggleGroup({ label, tip, value, onChange, options }) {
   return (
     <div className="flex items-center gap-3">
-      <label className="text-sm text-zinc-500 w-20 shrink-0">{label}</label>
+      <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
+        {label}
+        {tip && <Tip content={tip} />}
+      </label>
       <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-sm font-semibold">
         {options.map(([key, text]) => (
           <button
@@ -61,7 +68,6 @@ export default function App() {
   const [micStarted, setMicStarted] = useState(false);
   const [micError, setMicError] = useState(null);
 
-  // Sync audio settings from context to hooks
   useEffect(() => { detector.setNoiseGateDb(settings.noiseGateDb); }, [settings.noiseGateDb, detector.setNoiseGateDb]);
   useEffect(() => { detector.setInputGain(settings.inputGain); }, [settings.inputGain, detector.setInputGain]);
   useEffect(() => { tonePlayer.setVolume(settings.toneVolume); }, [settings.toneVolume, tonePlayer.setVolume]);
@@ -78,11 +84,9 @@ export default function App() {
   const exercise = useExercise(tonePlayer, exerciseConfig);
   const { phase, targetMidi: exerciseTarget, holdProgress, hint } = exercise.state;
 
-  // Pause pitch detection while tones are playing
   const tonePlaying = phase === 'playing_tone' || phase === 'replaying_user' || phase === 'replaying_target' || phase === 'success';
   useEffect(() => { detector.setPaused(tonePlaying); }, [tonePlaying, detector.setPaused]);
 
-  // Feed detected pitch into exercise
   useEffect(() => {
     exercise.reportPitch(detector.state.midi, detector.state.frequency);
   }, [detector.state.midi, detector.state.frequency, exercise.reportPitch]);
@@ -97,7 +101,6 @@ export default function App() {
     }
   }, [detector]);
 
-  // Auto-request mic on mount
   const micAttempted = useRef(false);
   useEffect(() => {
     if (!micAttempted.current) {
@@ -153,15 +156,19 @@ export default function App() {
           </div>
           <div className="flex gap-2">
             {!micStarted ? (
-              <button onClick={handleStartMic} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm">
-                <Mic size={14} />
-                Turn on mic
-              </button>
+              <Tooltip content="Grant microphone access so the app can detect your pitch in real time.">
+                <button onClick={handleStartMic} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm">
+                  <Mic size={14} />
+                  Turn on mic
+                </button>
+              </Tooltip>
             ) : (
-              <span className="flex items-center gap-2 text-sm text-emerald-600 font-semibold">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-300/50" />
-                Mic on
-              </span>
+              <Tooltip content="Microphone is active and listening for pitch.">
+                <span className="flex items-center gap-2 text-sm text-emerald-600 font-semibold cursor-default">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-300/50" />
+                  Mic on
+                </span>
+              </Tooltip>
             )}
           </div>
         </div>
@@ -176,10 +183,18 @@ export default function App() {
             notation={settings.notation}
           />
           <div className="space-y-2">
-            <ToggleGroup label="Notation" value={settings.notation} onChange={v => set('notation', v)}
-              options={[['scientific', 'Scientific'], ['solfege', 'Solfege']]} />
+            <ToggleGroup
+              label="Notation"
+              tip="How note names are displayed. Scientific uses letter names (C4, D♯3). Solfège uses syllables (Do, Re, Mi…)."
+              value={settings.notation}
+              onChange={v => set('notation', v)}
+              options={[['scientific', 'Scientific'], ['solfege', 'Solfege']]}
+            />
             <div className="flex items-center gap-3">
-              <label className="text-sm text-zinc-500 w-20 shrink-0">Difficulty</label>
+              <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
+                Difficulty
+                <Tip content="Controls how precisely you must match the pitch. Easy ±30¢ · Medium ±22¢ · Hard ±15¢" />
+              </label>
               <select
                 value={settings.difficulty}
                 onChange={e => set('difficulty', e.target.value)}
@@ -205,7 +220,10 @@ export default function App() {
                 <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Input</h3>
                 {/* Level meter */}
                 <div className="flex items-center gap-3">
-                  <label className="text-sm text-zinc-500 w-20 shrink-0">Level</label>
+                  <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
+                    Level
+                    <Tip content="Live microphone input level. Turns green when signal is above the noise gate threshold." />
+                  </label>
                   <div className="flex-1 h-2.5 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden">
                     {(() => {
                       const gatePercent = ((settings.noiseGateDb - SETTINGS.meterFloorDb) / (SETTINGS.meterCeilDb - SETTINGS.meterFloorDb)) * 100;
@@ -220,25 +238,32 @@ export default function App() {
                   </div>
                   <span className="w-10 shrink-0" />
                 </div>
-                <Slider label="Noise gate" value={settings.noiseGateDb} onChange={v => set('noiseGateDb', v)}
+                <Slider label="Noise gate" tip="Sounds quieter than this threshold are ignored. Raise it if background noise causes false detections."
+                  value={settings.noiseGateDb} onChange={v => set('noiseGateDb', v)}
                   min={-60} max={-10} step={1} format={v => `${v} dB`} />
-                <Slider label="Mic gain" value={settings.inputGain} onChange={v => set('inputGain', v)}
+                <Slider label="Mic gain" tip="Amplifies the microphone signal before processing. Increase if your voice is consistently hard to detect."
+                  value={settings.inputGain} onChange={v => set('inputGain', v)}
                   min={0.5} max={5} step={0.1} format={v => `${v.toFixed(1)}x`} />
-                <Slider label="Silence" value={settings.silenceTimeoutS} onChange={v => set('silenceTimeoutS', v)}
+                <Slider label="Silence" tip="After this much silence the app assumes you stopped singing and replays the target note."
+                  value={settings.silenceTimeoutS} onChange={v => set('silenceTimeoutS', v)}
                   min={1} max={5} step={0.5} format={v => `${v}s`} />
               </div>
 
               <div className="space-y-2">
                 <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Output</h3>
-                <ToggleGroup label="Tone source" value={settings.audioMode} onChange={v => set('audioMode', v)}
+                <ToggleGroup label="Tone source" tip="Sine plays a pure synthetic wave. Piano plays a real recorded piano note loaded on demand."
+                  value={settings.audioMode} onChange={v => set('audioMode', v)}
                   options={[['sine', 'Sine'], ['piano', 'Piano']]} />
-                <Slider label="Volume" value={settings.toneVolume} onChange={v => set('toneVolume', v)}
+                <Slider label="Volume" tip="Playback volume of the reference tone."
+                  value={settings.toneVolume} onChange={v => set('toneVolume', v)}
                   min={0.05} max={1} step={0.05} format={v => `${Math.round(v * 100)}%`} />
                 {settings.audioMode === 'sine' && (
-                  <Slider label="Tone" value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
+                  <Slider label="Tone" tip="How long the reference tone plays before the listening phase begins."
+                    value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
                     min={0.5} max={3} step={0.25} format={v => `${v}s`} />
                 )}
-                <Slider label="Hold" value={settings.holdDurationS} onChange={v => set('holdDurationS', v)}
+                <Slider label="Hold" tip="How long you must sustain the correct pitch to pass and move to the next note."
+                  value={settings.holdDurationS} onChange={v => set('holdDurationS', v)}
                   min={1} max={6} step={0.5} format={v => `${v}s`} />
               </div>
             </div>
@@ -261,21 +286,27 @@ export default function App() {
           </span>
         )}
         {micStarted && !isRunning && (
-          <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-violet-500 text-white font-semibold text-sm">
-            <Play size={14} />
-            Play
-          </button>
+          <Tooltip content="Play a random note from your range, then try to match it with your voice.">
+            <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-violet-500 text-white font-semibold text-sm">
+              <Play size={14} />
+              Play
+            </button>
+          </Tooltip>
         )}
         {isRunning && (
           <>
-            <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700 font-semibold text-sm">
-              <SkipForward size={14} />
-              Next
-            </button>
-            <button onClick={exercise.stop} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 font-semibold text-sm">
-              <Square size={14} />
-              Stop
-            </button>
+            <Tooltip content="Skip this note and move on to a new random one.">
+              <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700 font-semibold text-sm">
+                <SkipForward size={14} />
+                Next
+              </button>
+            </Tooltip>
+            <Tooltip content="Stop the exercise and return to idle.">
+              <button onClick={exercise.stop} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 font-semibold text-sm">
+                <Square size={14} />
+                Stop
+              </button>
+            </Tooltip>
           </>
         )}
       </div>

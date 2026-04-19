@@ -1,5 +1,6 @@
 import { NOTE_NAMES, SOLFEGE_NAMES, PIANO_MIN_OCTAVE, PIANO_MAX_OCTAVE } from '../lib/constants';
 import { noteNameToMidi, midiToFreq, midiToNoteName } from '../lib/music';
+import { Tip } from './Tooltip';
 
 const octaves = [];
 for (let o = PIANO_MIN_OCTAVE; o <= PIANO_MAX_OCTAVE; o++) octaves.push(o);
@@ -39,7 +40,10 @@ export default function TargetSelector({ lowerMidi, upperMidi, onLowerChange, on
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-sm text-zinc-500 w-10">From</span>
+        <span className="text-sm text-zinc-500 w-10 flex items-center gap-1">
+          From
+          <Tip content="Lowest note that can appear in exercises. You can also click a piano key to set the range." />
+        </span>
         <div className="inline-flex">
           <select className={firstSelect} value={lower.note} onChange={e => handleNoteChange('lower', e.target.value)}>
             {NOTE_NAMES.map((n, i) => <option key={n} value={n}>{notation === 'solfege' ? SOLFEGE_NAMES[i] : n}</option>)}
@@ -50,7 +54,10 @@ export default function TargetSelector({ lowerMidi, upperMidi, onLowerChange, on
         </div>
         <span className="text-xs text-zinc-400">{lowerFreq.toFixed(1)} Hz</span>
 
-        <span className="text-sm text-zinc-500 w-6 text-center">to</span>
+        <span className="text-sm text-zinc-500 w-6 text-center flex items-center gap-1">
+          to
+          <Tip content="Highest note that can appear in exercises. Set From and To to the same note for single-note practice." />
+        </span>
         <div className="inline-flex">
           <select className={firstSelect} value={upper.note} onChange={e => handleNoteChange('upper', e.target.value)}>
             {NOTE_NAMES.map((n, i) => <option key={n} value={n}>{notation === 'solfege' ? SOLFEGE_NAMES[i] : n}</option>)}
