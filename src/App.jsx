@@ -11,7 +11,7 @@ import TargetSelector from './components/TargetSelector';
 import FeedbackPanel from './components/FeedbackPanel';
 import ProfileSelector from './components/ProfileSelector';
 import { Tooltip, LabelWithTip } from './components/Tooltip';
-import { Play, SkipForward, Square, Mic, MicOff, ChevronDown } from 'lucide-react';
+import { Play, SkipForward, Square, Mic, MicOff, ChevronDown, Github } from 'lucide-react';
 
 const PHASE_STYLES = {
   idle: null,
@@ -142,9 +142,20 @@ export default function App() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-5">
-      <header>
-        <h1 className="text-3xl font-extrabold tracking-tight">Pitch Trainer</h1>
-        <p className="text-zinc-500 text-sm">Pick a note, hear it, match it with your voice.</p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">Pitch Trainer</h1>
+          <p className="text-zinc-500 text-sm">Pick a note, hear it, match it with your voice.</p>
+        </div>
+        <a
+          href="https://github.com/gabrii/pitch-trainer"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-sm font-semibold text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 transition-colors shrink-0"
+        >
+          <Github size={15} />
+          Source code
+        </a>
       </header>
 
       {micError && (
