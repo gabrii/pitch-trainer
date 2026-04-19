@@ -63,7 +63,7 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
   }, [getContext, stop]);
 
   // Play via decoded AudioBuffer sample
-  const playSample = useCallback(async (midi) => {
+  const playSample = useCallback(async (midi, durationMs = SETTINGS.toneDurationMs) => {
     stop();
     const ctx = getContext();
 
@@ -71,8 +71,7 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
     try {
       buffer = await loadSample(midi, ctx);
     } catch (_) {
-      // Sample unavailable — fall back to sine
-      return playSine(midi, SETTINGS.toneDurationMs);
+      return playSine(midi, durationMs);
     }
 
     // Re-check: stop() may have been called while we were loading
@@ -88,11 +87,18 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
     gain.connect(ctx.destination);
     source.start();
 
+    // Fade out over FADE_OUT seconds starting at durationMs
+    const fadeOutStart = durationMs / 1000;
+    gain.gain.setValueAtTime(volumeRef.current, ctx.currentTime + fadeOutStart);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + fadeOutStart + FADE_OUT);
+    source.stop(ctx.currentTime + fadeOutStart + FADE_OUT + 0.01);
+
     return new Promise((resolve) => {
+      const totalMs = (fadeOutStart + FADE_OUT) * 1000 + 20;
       const timeout = setTimeout(() => {
         if (activeRef.current?.timeout === timeout) activeRef.current = null;
         resolve();
-      }, SAMPLE_DURATION_MS + 50);
+      }, totalMs);
       activeRef.current = { node: source, gain, timeout };
       source.onended = () => {
         if (activeRef.current?.timeout === timeout) {
@@ -107,7 +113,7 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
   /** Play a MIDI note. In 'piano' mode uses samples; in 'sine' mode uses oscillator. */
   const play = useCallback((midi, durationMs = SETTINGS.toneDurationMs) => {
     if (audioMode === 'piano' && hasSample(midi)) {
-      return playSample(midi);
+      return playSample(midi, durationMs);
     }
     return playSine(midi, durationMs);
   }, [audioMode, playSample, playSine]);

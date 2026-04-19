@@ -289,11 +289,9 @@ export default function App() {
                   <Slider label="Volume" tip="Playback volume of the reference tone."
                     value={settings.toneVolume} onChange={v => set('toneVolume', v)}
                     min={0.05} max={1} step={0.05} format={v => `${Math.round(v * 100)}%`} />
-                  {settings.audioMode === 'sine' && (
-                    <Slider label="Tone" tip="How long the reference tone plays before the listening phase begins."
-                      value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
-                      min={0.5} max={3} step={0.25} format={v => `${v}s`} />
-                  )}
+                  <Slider label="Tone" tip="How long the reference tone plays before the listening phase begins. In Piano mode capped at 4 s (sample length)."
+                    value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
+                    min={0.5} max={4} step={0.25} format={v => `${v}s`} />
                   <Slider label="Hold" tip="How long you must sustain the correct pitch to pass and move to the next note."
                     value={settings.holdDurationS} onChange={v => set('holdDurationS', v)}
                     min={1} max={6} step={0.5} format={v => `${v}s`} />
