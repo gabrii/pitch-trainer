@@ -25,7 +25,6 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
 
   return (
     <div className="flex items-center gap-3 sm:flex-col sm:items-center sm:gap-0">
-      {/* Mobile: number to the left */}
       <span className="sm:hidden text-xs text-zinc-400 font-semibold w-4 text-right shrink-0">
         {octave}
       </span>
@@ -48,7 +47,6 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
           );
         })}
       </div>
-      {/* Desktop: number below */}
       <span className="hidden sm:block text-xs text-zinc-400 mt-1 font-semibold">
         {octave}
       </span>

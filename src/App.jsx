@@ -10,7 +10,7 @@ import Piano from './components/Piano';
 import TargetSelector from './components/TargetSelector';
 import FeedbackPanel from './components/FeedbackPanel';
 import ProfileSelector from './components/ProfileSelector';
-import { Tooltip, TipIcon } from './components/Tooltip';
+import { Tooltip, LabelWithTip } from './components/Tooltip';
 import { Play, SkipForward, Square, Mic, MicOff, ChevronDown } from 'lucide-react';
 
 const PHASE_STYLES = {
@@ -25,15 +25,9 @@ const PHASE_STYLES = {
 
 function Slider({ label, tip, value, onChange, min, max, step, format }) {
   const pct = ((value - min) / (max - min)) * 100;
-  const labelEl = (
-    <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
-      {label}
-      {tip && <TipIcon />}
-    </label>
-  );
   return (
     <div className="flex items-center gap-3">
-      {tip ? <Tooltip content={tip}>{labelEl}</Tooltip> : labelEl}
+      <LabelWithTip tip={tip}>{label}</LabelWithTip>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(+e.target.value)} className="flex-1"
         style={{ background: `linear-gradient(to right, #8b5cf6 ${pct}%, #e4e4e7 ${pct}%)` }} />
@@ -43,15 +37,9 @@ function Slider({ label, tip, value, onChange, min, max, step, format }) {
 }
 
 function ToggleGroup({ label, tip, value, onChange, options }) {
-  const labelEl = (
-    <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
-      {label}
-      {tip && <TipIcon />}
-    </label>
-  );
   return (
     <div className="flex items-center gap-3">
-      {tip ? <Tooltip content={tip}>{labelEl}</Tooltip> : labelEl}
+      <LabelWithTip tip={tip}>{label}</LabelWithTip>
       <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-sm font-semibold">
         {options.map(([key, text]) => (
           <button
@@ -147,6 +135,11 @@ export default function App() {
   const displayedMidi = detector.state.midi ?? exercise.state.userMidi;
   const ps = PHASE_STYLES[phase];
 
+  const micBorder = micStarted ? 'border-emerald-200' : 'border-rose-200';
+  const micLabelCls = micStarted ? 'text-emerald-600' : 'text-rose-500';
+  const onBtnCls = micStarted ? 'bg-emerald-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50';
+  const offBtnCls = !micStarted ? 'bg-rose-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50';
+
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-5">
       <header>
@@ -168,27 +161,15 @@ export default function App() {
             <ProfileSelector />
           </div>
           <div className="flex gap-2">
-            <div className={`inline-flex items-center rounded-full border overflow-hidden text-sm font-semibold ${micStarted ? 'border-emerald-200' : 'border-rose-200'}`}>
+            <div className={`inline-flex items-center rounded-full border overflow-hidden text-sm font-semibold ${micBorder}`}>
               <Tooltip content={micStarted ? 'Microphone is active and detecting pitch.' : 'Microphone is off.'}>
-                <span className={`flex items-center gap-1.5 pl-3 pr-2 py-1.5 cursor-default ${micStarted ? 'text-emerald-600' : 'text-rose-500'}`}>
+                <span className={`flex items-center gap-1.5 pl-3 pr-2 py-1.5 cursor-default ${micLabelCls}`}>
                   {micStarted ? <Mic size={13} /> : <MicOff size={13} />}
                   Mic
                 </span>
               </Tooltip>
-              <button
-                onClick={handleStartMic}
-                disabled={micStarted}
-                className={`px-2.5 py-1.5 transition-colors ${micStarted ? 'bg-emerald-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
-              >
-                On
-              </button>
-              <button
-                onClick={handleStopMic}
-                disabled={!micStarted}
-                className={`px-2.5 py-1.5 transition-colors ${!micStarted ? 'bg-rose-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
-              >
-                Off
-              </button>
+              <button onClick={handleStartMic} disabled={micStarted} className={`px-2.5 py-1.5 transition-colors ${onBtnCls}`}>On</button>
+              <button onClick={handleStopMic} disabled={!micStarted} className={`px-2.5 py-1.5 transition-colors ${offBtnCls}`}>Off</button>
             </div>
           </div>
         </div>
@@ -211,12 +192,9 @@ export default function App() {
               options={[['scientific', 'Scientific'], ['solfege', 'Solfege']]}
             />
             <div className="flex items-center gap-3">
-              <Tooltip content="Controls how precisely you must match the pitch. Easy ±30¢ · Medium ±22¢ · Hard ±15¢">
-                <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
-                  Difficulty
-                  <TipIcon />
-                </label>
-              </Tooltip>
+              <LabelWithTip tip="Controls how precisely you must match the pitch. Easy ±30¢ · Medium ±22¢ · Hard ±15¢">
+                Difficulty
+              </LabelWithTip>
               <select
                 value={settings.difficulty}
                 onChange={e => set('difficulty', e.target.value)}
@@ -246,12 +224,9 @@ export default function App() {
                 <div className="space-y-2">
                   <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Input</h3>
                   <div className="flex items-center gap-3">
-                    <Tooltip content="Live microphone input level. Turns green when signal is above the noise gate threshold.">
-                      <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
-                        Level
-                        <TipIcon />
-                      </label>
-                    </Tooltip>
+                    <LabelWithTip tip="Live microphone input level. Turns green when signal is above the noise gate threshold.">
+                      Level
+                    </LabelWithTip>
                     <div className="flex-1 h-2.5 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden">
                       {(() => {
                         const gatePercent = ((settings.noiseGateDb - SETTINGS.meterFloorDb) / (SETTINGS.meterCeilDb - SETTINGS.meterFloorDb)) * 100;

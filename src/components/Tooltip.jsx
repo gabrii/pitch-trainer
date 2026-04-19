@@ -52,20 +52,22 @@ export function Tooltip({ content, children }) {
   );
 }
 
-export function Tip({ content }) {
-  return (
-    <Tooltip content={content}>
-      <span className="relative -top-1.5 inline-flex text-zinc-400 hover:text-zinc-500 transition-colors cursor-help">
-        <HelpCircle size={9} />
-      </span>
-    </Tooltip>
-  );
-}
-
+// Superscript (?) indicator — place inside a <Tooltip> to make the whole label the trigger
 export function TipIcon() {
   return (
     <span className="relative -top-1.5 inline-flex text-zinc-400 shrink-0">
       <HelpCircle size={9} />
     </span>
   );
+}
+
+// Convenience: a full-width label (or span) that shows a tooltip on hover over the text+icon
+export function LabelWithTip({ as: Tag = 'label', tip, className, children }) {
+  const el = (
+    <Tag className={className ?? 'text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none'}>
+      {children}
+      {tip && <TipIcon />}
+    </Tag>
+  );
+  return tip ? <Tooltip content={tip}>{el}</Tooltip> : el;
 }
