@@ -10,8 +10,8 @@ import Piano from './components/Piano';
 import TargetSelector from './components/TargetSelector';
 import FeedbackPanel from './components/FeedbackPanel';
 import ProfileSelector from './components/ProfileSelector';
-import { Tooltip, Tip } from './components/Tooltip';
-import { Play, SkipForward, Square, Mic } from 'lucide-react';
+import { Tooltip, TipIcon } from './components/Tooltip';
+import { Play, SkipForward, Square, Mic, MicOff, ChevronDown } from 'lucide-react';
 
 const PHASE_STYLES = {
   idle: null,
@@ -25,12 +25,15 @@ const PHASE_STYLES = {
 
 function Slider({ label, tip, value, onChange, min, max, step, format }) {
   const pct = ((value - min) / (max - min)) * 100;
+  const labelEl = (
+    <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
+      {label}
+      {tip && <TipIcon />}
+    </label>
+  );
   return (
     <div className="flex items-center gap-3">
-      <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
-        {label}
-        {tip && <Tip content={tip} />}
-      </label>
+      {tip ? <Tooltip content={tip}>{labelEl}</Tooltip> : labelEl}
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(+e.target.value)} className="flex-1"
         style={{ background: `linear-gradient(to right, #8b5cf6 ${pct}%, #e4e4e7 ${pct}%)` }} />
@@ -40,12 +43,15 @@ function Slider({ label, tip, value, onChange, min, max, step, format }) {
 }
 
 function ToggleGroup({ label, tip, value, onChange, options }) {
+  const labelEl = (
+    <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
+      {label}
+      {tip && <TipIcon />}
+    </label>
+  );
   return (
     <div className="flex items-center gap-3">
-      <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
-        {label}
-        {tip && <Tip content={tip} />}
-      </label>
+      {tip ? <Tooltip content={tip}>{labelEl}</Tooltip> : labelEl}
       <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-sm font-semibold">
         {options.map(([key, text]) => (
           <button
@@ -67,6 +73,7 @@ export default function App() {
 
   const [micStarted, setMicStarted] = useState(false);
   const [micError, setMicError] = useState(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   useEffect(() => { detector.setNoiseGateDb(settings.noiseGateDb); }, [settings.noiseGateDb, detector.setNoiseGateDb]);
   useEffect(() => { detector.setInputGain(settings.inputGain); }, [settings.inputGain, detector.setInputGain]);
@@ -100,6 +107,12 @@ export default function App() {
       setMicError(err.message);
     }
   }, [detector]);
+
+  const handleStopMic = useCallback(() => {
+    exercise.stop();
+    detector.stop();
+    setMicStarted(false);
+  }, [detector, exercise]);
 
   const micAttempted = useRef(false);
   useEffect(() => {
@@ -163,12 +176,22 @@ export default function App() {
                 </button>
               </Tooltip>
             ) : (
-              <Tooltip content="Microphone is active and listening for pitch.">
-                <span className="flex items-center gap-2 text-sm text-emerald-600 font-semibold cursor-default">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-300/50" />
-                  Mic on
-                </span>
-              </Tooltip>
+              <div className="inline-flex items-center rounded-full border border-emerald-200 overflow-hidden text-sm font-semibold">
+                <Tooltip content="Microphone is active and detecting pitch.">
+                  <span className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 text-emerald-600 cursor-default">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-lg shadow-emerald-300/50 shrink-0" />
+                    Mic
+                  </span>
+                </Tooltip>
+                <Tooltip content="Microphone is on and listening.">
+                  <span className="px-2.5 py-1.5 bg-emerald-500 text-white cursor-default">On</span>
+                </Tooltip>
+                <Tooltip content="Turn off the microphone and stop the exercise.">
+                  <button onClick={handleStopMic} className="px-2.5 py-1.5 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors">
+                    Off
+                  </button>
+                </Tooltip>
+              </div>
             )}
           </div>
         </div>
@@ -191,10 +214,12 @@ export default function App() {
               options={[['scientific', 'Scientific'], ['solfege', 'Solfege']]}
             />
             <div className="flex items-center gap-3">
-              <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
-                Difficulty
-                <Tip content="Controls how precisely you must match the pitch. Easy ±30¢ · Medium ±22¢ · Hard ±15¢" />
-              </label>
+              <Tooltip content="Controls how precisely you must match the pitch. Easy ±30¢ · Medium ±22¢ · Hard ±15¢">
+                <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
+                  Difficulty
+                  <TipIcon />
+                </label>
+              </Tooltip>
               <select
                 value={settings.difficulty}
                 onChange={e => set('difficulty', e.target.value)}
@@ -209,66 +234,73 @@ export default function App() {
           </div>
         </div>
 
-        {/* Row 2: Collapsible settings */}
-        <details className="rounded-xl border border-zinc-200 bg-zinc-50">
-          <summary className="px-4 py-2 cursor-pointer text-sm font-semibold text-zinc-500 select-none">
+        {/* Collapsible advanced settings */}
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50">
+          <button
+            onClick={() => setAdvancedOpen(v => !v)}
+            className="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold text-zinc-500 select-none"
+          >
             Advanced Settings
-          </summary>
-          <div className="px-4 pb-3 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Input</h3>
-                {/* Level meter */}
-                <div className="flex items-center gap-3">
-                  <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-1">
-                    Level
-                    <Tip content="Live microphone input level. Turns green when signal is above the noise gate threshold." />
-                  </label>
-                  <div className="flex-1 h-2.5 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden">
-                    {(() => {
-                      const gatePercent = ((settings.noiseGateDb - SETTINGS.meterFloorDb) / (SETTINGS.meterCeilDb - SETTINGS.meterFloorDb)) * 100;
-                      const level = Math.min(100, detector.state.inputLevel ?? 0);
-                      return (
-                        <div
-                          className={`h-full rounded-full transition-all duration-100 ${level >= gatePercent ? 'bg-emerald-400' : 'bg-zinc-300'}`}
-                          style={{ width: `${level}%` }}
-                        />
-                      );
-                    })()}
+            <ChevronDown size={15} className={`transition-transform duration-200 ${advancedOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {advancedOpen && (
+            <div className="px-4 pb-3 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Input</h3>
+                  <div className="flex items-center gap-3">
+                    <Tooltip content="Live microphone input level. Turns green when signal is above the noise gate threshold.">
+                      <label className="text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none">
+                        Level
+                        <TipIcon />
+                      </label>
+                    </Tooltip>
+                    <div className="flex-1 h-2.5 rounded-full bg-zinc-100 border border-zinc-200 overflow-hidden">
+                      {(() => {
+                        const gatePercent = ((settings.noiseGateDb - SETTINGS.meterFloorDb) / (SETTINGS.meterCeilDb - SETTINGS.meterFloorDb)) * 100;
+                        const level = Math.min(100, detector.state.inputLevel ?? 0);
+                        return (
+                          <div
+                            className={`h-full rounded-full transition-all duration-100 ${level >= gatePercent ? 'bg-emerald-400' : 'bg-zinc-300'}`}
+                            style={{ width: `${level}%` }}
+                          />
+                        );
+                      })()}
+                    </div>
+                    <span className="w-10 shrink-0" />
                   </div>
-                  <span className="w-10 shrink-0" />
+                  <Slider label="Noise gate" tip="Sounds quieter than this threshold are ignored. Raise it if background noise causes false detections."
+                    value={settings.noiseGateDb} onChange={v => set('noiseGateDb', v)}
+                    min={-60} max={-10} step={1} format={v => `${v} dB`} />
+                  <Slider label="Mic gain" tip="Amplifies the microphone signal before processing. Increase if your voice is consistently hard to detect."
+                    value={settings.inputGain} onChange={v => set('inputGain', v)}
+                    min={0.5} max={5} step={0.1} format={v => `${v.toFixed(1)}x`} />
+                  <Slider label="Silence" tip="After this much silence the app assumes you stopped singing and replays the target note."
+                    value={settings.silenceTimeoutS} onChange={v => set('silenceTimeoutS', v)}
+                    min={1} max={5} step={0.5} format={v => `${v}s`} />
                 </div>
-                <Slider label="Noise gate" tip="Sounds quieter than this threshold are ignored. Raise it if background noise causes false detections."
-                  value={settings.noiseGateDb} onChange={v => set('noiseGateDb', v)}
-                  min={-60} max={-10} step={1} format={v => `${v} dB`} />
-                <Slider label="Mic gain" tip="Amplifies the microphone signal before processing. Increase if your voice is consistently hard to detect."
-                  value={settings.inputGain} onChange={v => set('inputGain', v)}
-                  min={0.5} max={5} step={0.1} format={v => `${v.toFixed(1)}x`} />
-                <Slider label="Silence" tip="After this much silence the app assumes you stopped singing and replays the target note."
-                  value={settings.silenceTimeoutS} onChange={v => set('silenceTimeoutS', v)}
-                  min={1} max={5} step={0.5} format={v => `${v}s`} />
-              </div>
 
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Output</h3>
-                <ToggleGroup label="Tone source" tip="Sine plays a pure synthetic wave. Piano plays a real recorded piano note loaded on demand."
-                  value={settings.audioMode} onChange={v => set('audioMode', v)}
-                  options={[['sine', 'Sine'], ['piano', 'Piano']]} />
-                <Slider label="Volume" tip="Playback volume of the reference tone."
-                  value={settings.toneVolume} onChange={v => set('toneVolume', v)}
-                  min={0.05} max={1} step={0.05} format={v => `${Math.round(v * 100)}%`} />
-                {settings.audioMode === 'sine' && (
-                  <Slider label="Tone" tip="How long the reference tone plays before the listening phase begins."
-                    value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
-                    min={0.5} max={3} step={0.25} format={v => `${v}s`} />
-                )}
-                <Slider label="Hold" tip="How long you must sustain the correct pitch to pass and move to the next note."
-                  value={settings.holdDurationS} onChange={v => set('holdDurationS', v)}
-                  min={1} max={6} step={0.5} format={v => `${v}s`} />
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Output</h3>
+                  <ToggleGroup label="Tone source" tip="Sine plays a pure synthetic wave. Piano plays a real recorded piano note loaded on demand."
+                    value={settings.audioMode} onChange={v => set('audioMode', v)}
+                    options={[['sine', 'Sine'], ['piano', 'Piano']]} />
+                  <Slider label="Volume" tip="Playback volume of the reference tone."
+                    value={settings.toneVolume} onChange={v => set('toneVolume', v)}
+                    min={0.05} max={1} step={0.05} format={v => `${Math.round(v * 100)}%`} />
+                  {settings.audioMode === 'sine' && (
+                    <Slider label="Tone" tip="How long the reference tone plays before the listening phase begins."
+                      value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
+                      min={0.5} max={3} step={0.25} format={v => `${v}s`} />
+                  )}
+                  <Slider label="Hold" tip="How long you must sustain the correct pitch to pass and move to the next note."
+                    value={settings.holdDurationS} onChange={v => set('holdDurationS', v)}
+                    min={1} max={6} step={0.5} format={v => `${v}s`} />
+                </div>
               </div>
             </div>
-          </div>
-        </details>
+          )}
+        </div>
       </div>
 
       {/* Phase indicator + controls */}

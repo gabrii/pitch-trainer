@@ -13,7 +13,7 @@ export default function Piano({ targetMidi, detectedMidi, harmonics = [], lowerM
   }, [lowerMidi, upperMidi]);
 
   return (
-    <div className="flex gap-1 overflow-visible py-2 px-1 justify-center">
+    <div className="flex flex-wrap gap-2 py-2 px-1 justify-center">
       {octaves.map(o => (
         <OctaveBox
           key={o}
