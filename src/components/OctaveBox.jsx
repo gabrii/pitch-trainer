@@ -24,7 +24,10 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
   else if (isDetectedOctave) borderColor = 'border-yellow-300';
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs text-zinc-400 font-semibold w-3 text-right shrink-0">
+        {octave}
+      </span>
       <div className={`flex items-start border ${borderColor} rounded-lg p-1 bg-zinc-100 transition-colors duration-150`}>
         {NOTE_NAMES.map((name, i) => {
           const midi = baseMidi + i;
@@ -44,9 +47,6 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
           );
         })}
       </div>
-      <span className="text-xs text-zinc-400 mt-1 font-semibold">
-        {octave}
-      </span>
     </div>
   );
 }
