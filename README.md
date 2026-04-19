@@ -1,5 +1,7 @@
 # Pitch Trainer
 
+**[Try it live →](https://gabrii.github.io/pitch-trainer/)**
+
 A browser-based pitch matching tool. Select a target note, play a reference tone, then sing and get real-time feedback on how close you are. Think SingStar, but as a training tool.
 
 ## Quick start
