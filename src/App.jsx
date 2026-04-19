@@ -175,24 +175,20 @@ export default function App() {
                   Mic
                 </span>
               </Tooltip>
-              <Tooltip content="Turn on the microphone to detect your pitch.">
-                <button
-                  onClick={handleStartMic}
-                  disabled={micStarted}
-                  className={`px-2.5 py-1.5 transition-colors ${micStarted ? 'bg-emerald-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
-                >
-                  On
-                </button>
-              </Tooltip>
-              <Tooltip content="Turn off the microphone and stop the exercise.">
-                <button
-                  onClick={handleStopMic}
-                  disabled={!micStarted}
-                  className={`px-2.5 py-1.5 transition-colors ${!micStarted ? 'bg-rose-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
-                >
-                  Off
-                </button>
-              </Tooltip>
+              <button
+                onClick={handleStartMic}
+                disabled={micStarted}
+                className={`px-2.5 py-1.5 transition-colors ${micStarted ? 'bg-emerald-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
+              >
+                On
+              </button>
+              <button
+                onClick={handleStopMic}
+                disabled={!micStarted}
+                className={`px-2.5 py-1.5 transition-colors ${!micStarted ? 'bg-rose-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
+              >
+                Off
+              </button>
             </div>
           </div>
         </div>
@@ -239,7 +235,7 @@ export default function App() {
         <div className="rounded-xl border border-zinc-200 bg-zinc-50">
           <button
             onClick={() => setAdvancedOpen(v => !v)}
-            className="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold text-zinc-500 select-none"
+            className="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold text-zinc-500 select-none cursor-pointer hover:bg-zinc-100 rounded-xl transition-colors"
           >
             Advanced Settings
             <ChevronDown size={15} className={`transition-transform duration-200 ${advancedOpen ? 'rotate-180' : ''}`} />
