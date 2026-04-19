@@ -1,37 +1,52 @@
-import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useState } from 'react';
 import { HelpCircle } from 'lucide-react';
+import {
+  useFloating,
+  useHover,
+  useFocus,
+  useInteractions,
+  FloatingPortal,
+  offset,
+  flip,
+  shift,
+  autoUpdate,
+} from '@floating-ui/react';
 
 export function Tooltip({ content, children }) {
-  const [rect, setRect] = useState(null);
-  const ref = useRef(null);
+  const [open, setOpen] = useState(false);
 
-  // Hide if anchor is removed from DOM while hovered
-  useEffect(() => () => setRect(null), []);
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement: 'top',
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(6),
+      flip({ fallbackPlacements: ['bottom', 'left', 'right'] }),
+      shift({ padding: 8 }),
+    ],
+  });
+
+  const hover = useHover(context, { delay: { open: 100, close: 0 } });
+  const focus = useFocus(context);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus]);
 
   return (
     <>
-      <span
-        ref={ref}
-        onMouseEnter={() => setRect(ref.current?.getBoundingClientRect() ?? null)}
-        onMouseLeave={() => setRect(null)}
-        className="inline-flex"
-      >
+      <span ref={refs.setReference} {...getReferenceProps()} className="inline-flex">
         {children}
       </span>
-      {rect && createPortal(
-        <div
-          className="pointer-events-none fixed z-50 bg-zinc-800 text-white text-xs px-2.5 py-1.5 rounded-lg shadow-lg max-w-[220px] leading-snug"
-          style={{
-            // Clamp center point so tooltip stays within viewport on both sides
-            left: Math.max(110, Math.min(rect.left + rect.width / 2, window.innerWidth - 110)),
-            top: rect.top - 8,
-            transform: 'translate(-50%, -100%)',
-          }}
-        >
-          {content}
-        </div>,
-        document.body
+      {open && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className="pointer-events-none z-50 bg-zinc-800 text-white text-xs px-2.5 py-1.5 rounded-lg shadow-lg max-w-[220px] leading-snug"
+          >
+            {content}
+          </div>
+        </FloatingPortal>
       )}
     </>
   );
@@ -47,7 +62,6 @@ export function Tip({ content }) {
   );
 }
 
-// Visual-only indicator used inside a parent Tooltip (no nested tooltip)
 export function TipIcon() {
   return (
     <span className="relative -top-1.5 inline-flex text-zinc-400 shrink-0">

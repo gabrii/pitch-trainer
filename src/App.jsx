@@ -168,31 +168,32 @@ export default function App() {
             <ProfileSelector />
           </div>
           <div className="flex gap-2">
-            {!micStarted ? (
-              <Tooltip content="Grant microphone access so the app can detect your pitch in real time.">
-                <button onClick={handleStartMic} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-500 text-white font-bold text-sm">
-                  <Mic size={14} />
-                  Turn on mic
+            <div className={`inline-flex items-center rounded-full border overflow-hidden text-sm font-semibold ${micStarted ? 'border-emerald-200' : 'border-rose-200'}`}>
+              <Tooltip content={micStarted ? 'Microphone is active and detecting pitch.' : 'Microphone is off.'}>
+                <span className={`flex items-center gap-1.5 pl-3 pr-2 py-1.5 cursor-default ${micStarted ? 'text-emerald-600' : 'text-rose-500'}`}>
+                  {micStarted ? <Mic size={13} /> : <MicOff size={13} />}
+                  Mic
+                </span>
+              </Tooltip>
+              <Tooltip content="Turn on the microphone to detect your pitch.">
+                <button
+                  onClick={handleStartMic}
+                  disabled={micStarted}
+                  className={`px-2.5 py-1.5 transition-colors ${micStarted ? 'bg-emerald-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
+                >
+                  On
                 </button>
               </Tooltip>
-            ) : (
-              <div className="inline-flex items-center rounded-full border border-emerald-200 overflow-hidden text-sm font-semibold">
-                <Tooltip content="Microphone is active and detecting pitch.">
-                  <span className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 text-emerald-600 cursor-default">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-lg shadow-emerald-300/50 shrink-0" />
-                    Mic
-                  </span>
-                </Tooltip>
-                <Tooltip content="Microphone is on and listening.">
-                  <span className="px-2.5 py-1.5 bg-emerald-500 text-white cursor-default">On</span>
-                </Tooltip>
-                <Tooltip content="Turn off the microphone and stop the exercise.">
-                  <button onClick={handleStopMic} className="px-2.5 py-1.5 bg-white text-zinc-500 hover:bg-zinc-50 transition-colors">
-                    Off
-                  </button>
-                </Tooltip>
-              </div>
-            )}
+              <Tooltip content="Turn off the microphone and stop the exercise.">
+                <button
+                  onClick={handleStopMic}
+                  disabled={!micStarted}
+                  className={`px-2.5 py-1.5 transition-colors ${!micStarted ? 'bg-rose-500 text-white cursor-default' : 'bg-white text-zinc-500 hover:bg-zinc-50'}`}
+                >
+                  Off
+                </button>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
