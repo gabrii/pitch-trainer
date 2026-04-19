@@ -56,7 +56,7 @@ export default function App() {
   const { settings, derived, set } = useSettings();
   const { getContext } = useAudioContext();
   const detector = usePitchDetector(getContext);
-  const tonePlayer = useTonePlayer(getContext);
+  const tonePlayer = useTonePlayer(getContext, settings.audioMode);
 
   const [micStarted, setMicStarted] = useState(false);
   const [micError, setMicError] = useState(null);
@@ -230,10 +230,14 @@ export default function App() {
 
               <div className="space-y-2">
                 <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Output</h3>
+                <ToggleGroup label="Tone source" value={settings.audioMode} onChange={v => set('audioMode', v)}
+                  options={[['sine', 'Sine'], ['piano', 'Piano']]} />
                 <Slider label="Volume" value={settings.toneVolume} onChange={v => set('toneVolume', v)}
                   min={0.05} max={1} step={0.05} format={v => `${Math.round(v * 100)}%`} />
-                <Slider label="Tone" value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
-                  min={0.5} max={3} step={0.25} format={v => `${v}s`} />
+                {settings.audioMode === 'sine' && (
+                  <Slider label="Tone" value={settings.toneDurationS} onChange={v => set('toneDurationS', v)}
+                    min={0.5} max={3} step={0.25} format={v => `${v}s`} />
+                )}
                 <Slider label="Hold" value={settings.holdDurationS} onChange={v => set('holdDurationS', v)}
                   min={1} max={6} step={0.5} format={v => `${v}s`} />
               </div>

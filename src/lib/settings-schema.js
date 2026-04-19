@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS = {
   holdDurationS: 3,
   silenceTimeoutS: 2,
   toneDurationS: 1,
+  audioMode: 'piano', // 'sine' | 'piano'
 };
 
 export const DIFFICULTY_PRESETS = {

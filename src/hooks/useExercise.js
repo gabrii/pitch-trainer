@@ -139,7 +139,7 @@ export function useExercise(tonePlayer, config) {
         dispatch({ type: 'SUCCESS' });
 
         (async () => {
-          await tonePlayer.playSuccess(midiToFreq(L.target));
+          await tonePlayer.playSuccess(L.target);
           if (L.cancelled) return;
 
           await new Promise(r => setTimeout(r, 1000));
@@ -150,7 +150,7 @@ export function useExercise(tonePlayer, config) {
           L.target = next;
           L.progress = 0;
           dispatch({ type: 'START', targetMidi: next });
-          await tonePlayer.play(midiToFreq(next), c.toneDurationMs);
+          await tonePlayer.play(next, c.toneDurationMs);
           if (L.cancelled) return;
           dispatch({ type: 'TONE_ENDED' });
         })();
@@ -172,7 +172,7 @@ export function useExercise(tonePlayer, config) {
     L.pitchState = null;
     dispatch({ type: 'START', targetMidi });
 
-    await tonePlayer.play(midiToFreq(targetMidi), latest.current.config.toneDurationMs);
+    await tonePlayer.play(targetMidi, latest.current.config.toneDurationMs);
     if (L.cancelled) return;
     dispatch({ type: 'TONE_ENDED' });
   }, [tonePlayer, clearTimers]);
@@ -217,7 +217,7 @@ export function useExercise(tonePlayer, config) {
 
         if (userNote != null && !isCorrectNote) {
           dispatch({ type: 'REPLAY_USER' });
-          await tonePlayer.play(midiToFreq(userNote), cfg.toneDurationMs);
+          await tonePlayer.play(userNote, cfg.toneDurationMs);
           if (L.cancelled) return;
 
           await new Promise(r => setTimeout(r, 200));
@@ -225,7 +225,7 @@ export function useExercise(tonePlayer, config) {
         }
 
         dispatch({ type: 'REPLAY_TARGET' });
-        await tonePlayer.play(midiToFreq(L.target), cfg.toneDurationMs);
+        await tonePlayer.play(L.target, cfg.toneDurationMs);
         if (L.cancelled) return;
 
         L.lastUserMidi = null;
