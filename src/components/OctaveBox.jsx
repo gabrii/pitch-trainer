@@ -24,8 +24,9 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
   else if (isDetectedOctave) borderColor = 'border-yellow-300';
 
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-xs text-zinc-400 font-semibold w-3 text-right shrink-0">
+    <div className="flex items-center gap-3 sm:flex-col sm:items-center sm:gap-0">
+      {/* Mobile: number to the left */}
+      <span className="sm:hidden text-xs text-zinc-400 font-semibold w-4 text-right shrink-0">
         {octave}
       </span>
       <div className={`flex items-start border ${borderColor} rounded-lg p-1 bg-zinc-100 transition-colors duration-150`}>
@@ -47,6 +48,10 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
           );
         })}
       </div>
+      {/* Desktop: number below */}
+      <span className="hidden sm:block text-xs text-zinc-400 mt-1 font-semibold">
+        {octave}
+      </span>
     </div>
   );
 }
