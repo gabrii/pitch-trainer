@@ -8,7 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "ladle": "ladle serve",
+    "ladle:build": "ladle build",
+    "docs": "node scripts/build-docs.mjs"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.19",
@@ -16,10 +19,12 @@
     "lucide-react": "^1.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-router-dom": "^7.14.2",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@ladle/react": "^5.1.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

@@ -2,7 +2,11 @@
 
 **[Try it live →](https://gabrii.github.io/pitch-trainer/)**
 
-A browser-based pitch matching tool. Select a target note, play a reference tone, then sing and get real-time feedback on how close you are. Think SingStar, but as a training tool.
+A browser-based ear-training playground with three exercises:
+
+- **Tuner** — Real-time pitch readout showing how far you are from the nearest semitone. Useful for instrumentalists as well as singers.
+- **Match Pitch** — A reference tone plays; sing it back and hold the pitch until the green bar fills.
+- **Identify Note** — A note plays; click the matching key on the piano. Wrong picks replay your guess then the target so you can compare.
 
 ## Quick start
 
@@ -13,95 +17,102 @@ npm run dev
 
 Opens at http://localhost:5173/. Requires HTTPS or localhost for microphone access.
 
-## Build for production
+## All scripts
 
 ```bash
-npm run build    # outputs to dist/
-npm run preview  # serve the production build locally
+npm run dev          # dev server with hot reload
+npm run build        # production build → dist/
+npm run preview      # serve dist/ locally
+npm run ladle        # component gallery (Ladle)
+npm run ladle:build  # build the Ladle gallery
+npm run docs         # regenerate docs/state-machines.md
+npm run deploy       # deploy dist/ to GitHub Pages
 ```
 
 ## Stack
 
 - **React 19** + **Vite 8**
-- **Tailwind CSS v4** (no config file, uses `@tailwindcss/vite` plugin)
+- **Tailwind CSS v4** (`@tailwindcss/vite` — no config file)
+- **react-router-dom v7** with `HashRouter` (GitHub Pages compatible)
 - **lucide-react** for icons
-- **Web Audio API** for microphone input and tone playback
+- **Ladle** for component stories
+- **Web Audio API** for mic input and tone playback
 
-## Project structure
+## Architecture
+
+The app is a multi-exercise playground. Adding a 4th exercise = one new folder under `src/exercises/` + one line in `src/exercises/registry.js`.
 
 ```
 src/
-├── App.jsx                        Main layout, controls, exercise wiring
-├── main.jsx                       React root + SettingsProvider
-├── contexts/
-│   └── SettingsContext.jsx         Profiles, localStorage persistence, useSettings hook
-├── components/
-│   ├── Piano.jsx                  Octave container layout
-│   ├── OctaveBox.jsx              12 keys per octave + border coloring
-│   ├── PianoKey.jsx               Individual key (colors, labels, disabled state)
-│   ├── FeedbackPanel.jsx          Offset feedback, note display, tuning meter + chart
-│   ├── AccuracyChart.jsx          Canvas time-series of pitch accuracy
-│   ├── NoteDisplay.jsx            Large note name display
-│   ├── TargetSelector.jsx         Note range selector (From/To)
-│   ├── ProfileSelector.jsx        Profile CRUD (create, rename, delete)
-│   └── Modal.jsx                  Reusable modal dialog
-├── hooks/
-│   ├── useExercise.js             Phase state machine, hold progress, auto-advance
-│   ├── usePitchDetector.js        Mic input, YIN+HPS fusion, display hysteresis
-│   ├── useTonePlayer.js           Oscillator playback with fade envelope
-│   └── useAudioContext.js         Singleton AudioContext
-└── lib/
-    ├── constants.js               Algorithm tuning parameters (FFT, thresholds)
-    ├── settings-schema.js         Profile defaults, difficulty presets, derived values
-    ├── music.js                   Freq↔MIDI conversion, cents math, note labels
-    └── pitch-detection.js         YIN, HPS, detector fusion, FFT peak extraction
+  App.jsx                      # routing shell: <Layout> + <Routes> from registry
+  main.jsx                     # provider stack + HashRouter
+
+  layouts/
+    Layout.jsx                 # sidebar + mobile drawer + <Outlet>
+    Sidebar.jsx                # brand, nav, global settings, mic toggle
+    MobileTopBar.jsx           # burger menu (< lg breakpoint)
+    ExerciseShell.jsx          # consistent header + settings + body frame
+
+  services/                    # singleton providers (survive route changes)
+    AudioContextProvider.jsx
+    TonePlayerProvider.jsx     # bridges global settings → setAudioMode/setVolume
+    PitchDetectorProvider.jsx  # split into control + state contexts (perf)
+
+  contexts/
+    SettingsContext.jsx        # localStorage persistence, profile CRUD
+    settingsHooks.js           # useGlobalSettings, useExerciseSettings, useSettings
+
+  exercises/
+    registry.js                # EXERCISES array — imports all descriptors
+    types.js                   # JSDoc: ExerciseDescriptor, ExerciseRuntime
+    common/
+      PhasePill.jsx            # colored status pill
+      ActionBar.jsx            # Play/Next/Stop/Replay/Skip buttons
+      RangeSelector.jsx        # note range dropdowns
+    tuner/                     # Tuner exercise
+    matchPitch/                # Match Pitch exercise
+    identifyNote/              # Identify Note exercise
+
+  components/                  # shared / primitive UI
+    Piano.jsx                  # mode='passive'|'rangePicker'|'answer' + highlight()
+    AccuracyChart.jsx          # context-free canvas chart (cents + thresholds as props)
+    CentsNeedle.jsx            # horizontal needle gauge
+    ...
+
+  lib/
+    random.js                  # pickRandomMidi(lo, hi, exclude)
+    asyncFlow.js               # sleep(ms)
+    phase-styles.js            # BASE_PHASE_STYLES map
+    settings-schema.js         # DEFAULT_GLOBAL, DEFAULT_EXERCISE, deriveExercise
+    ...
 ```
 
-## How it works
+## Exercise state machines
 
-### User flow
+Diagrams are in [`docs/state-machines.md`](docs/state-machines.md) (regenerated with `npm run docs`).
 
-1. Mic is requested automatically on load.
-2. Select a note range (From/To) and difficulty.
-3. Click **Play** — a reference tone plays, then the app listens.
-4. Sing the note — the chart shows real-time accuracy, the piano highlights your note.
-5. Hold the correct pitch long enough and the exercise advances to the next note.
+## Settings & profiles
 
-### Audio pipeline
+Settings are split into **global** (notation, audio mode, volume, mic gain, noise gate) — always visible in the sidebar — and **per-exercise** (range, difficulty, hold/silence/tone durations) — shown above each exercise.
 
-1. **Microphone input** via `getUserMedia` (echo cancellation, noise suppression, auto gain all disabled).
-2. **Signal chain**: MediaStreamSource → GainNode → highpass (50 Hz) → lowpass (2400 Hz) → AnalyserNode (FFT 8192).
-3. **Tone playback**: Separate OscillatorNode → GainNode → destination with fade-in/out envelope.
+All settings persist in localStorage (`pitch-trainer-profiles`) with named profile support. V1 profiles are automatically migrated to the v2 shape on load.
 
-### Pitch detection
+## Audio pipeline
 
-Two algorithms run each frame and are fused:
+1. **Microphone** → MediaStreamSource → Gain → highpass 50 Hz → lowpass 2400 Hz → AnalyserNode (FFT 8192).
+2. **Pitch detection**: YIN (time-domain) + HPS (frequency-domain) fused per frame. Octave-safe, display-hysteresis smoothed.
+3. **Tone playback**: OscillatorNode (sine) or decoded piano sample, with fade-in/out envelopes. Success chime = three microtonal chord notes.
 
-- **YIN** (time-domain autocorrelation): Center-clips the signal, computes cumulative mean normalized difference, uses parabolic interpolation.
-- **Harmonic Product Spectrum** (frequency-domain): Scores FFT bins by fundamental + 2nd harmonic (0.85×) + 3rd harmonic (0.6×).
+## Component gallery
 
-**Fusion**: Both agree → weighted blend. Octave-related → pick closest to previous. Disagree → highest confidence wins.
+```bash
+npm run ladle
+```
 
-### Settings & profiles
-
-All settings persist in localStorage with named profile support. Each profile stores: note range, notation (Scientific/Solfege), difficulty, noise gate, mic gain, tone volume, hold duration, silence timeout, and tone duration.
-
-Difficulty presets scale the accuracy thresholds:
-- **Easy** (~10¢ green zone)
-- **Medium** (~8¢ green zone)
-- **Hard** (~5¢ green zone)
-
-### Color coding
-
-| Color  | Meaning |
-|--------|---------|
-| Cyan   | Target note |
-| Yellow | Your detected note (wrong) |
-| Green  | Correct match |
-| Purple | Harmonic overtones |
+Opens a Ladle gallery at `http://localhost:61000/` with stories for Piano, AccuracyChart, CentsNeedle, PhasePill, Slider, PianoKey, NoteDisplay, and more. Co-located `*.stories.jsx` files next to each component.
 
 ## Requirements
 
 - Modern browser with Web Audio API
 - HTTPS or localhost (required for microphone)
-- A microphone
+- A microphone (Tuner and Match Pitch only)

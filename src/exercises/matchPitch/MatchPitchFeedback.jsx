@@ -1,7 +1,6 @@
-import { midiToFreq, midiToLabel, centsOff, describeOffset } from '../lib/music';
-import { useSettings } from '../contexts/settingsHooks';
-import NoteDisplay from './NoteDisplay';
-import AccuracyChart from './AccuracyChart';
+import { midiToFreq, midiToLabel, centsOff, describeOffset } from '../../lib/music';
+import NoteDisplay from '../../components/NoteDisplay';
+import AccuracyChart from '../../components/AccuracyChart';
 
 const VISUAL_CAP = 50;
 
@@ -30,11 +29,7 @@ const NEEDLE_BG = {
 
 const METER_HEIGHT = 160;
 
-export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, confidence, status }) {
-  const { settings, derived } = useSettings();
-  const { visualGood, visualWarn } = derived;
-  const notation = settings.notation;
-
+export default function MatchPitchFeedback({ detectedFreq, detectedMidi, targetMidi, confidence, status, visualGood, visualWarn, notation }) {
   const targetFreq = targetMidi != null ? midiToFreq(targetMidi) : null;
   const hasDetection = detectedFreq != null && detectedMidi != null && status === 'listening';
 
@@ -111,7 +106,7 @@ export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, 
               roundedRight={false}
             />
           </div>
-          {/* Thin indicator bar, fused to chart's right edge */}
+          {/* Vertical indicator bar, fused to chart's right edge */}
           <div className="relative w-3 shrink-0 overflow-hidden"
                style={{
                  height: METER_HEIGHT,
@@ -125,7 +120,6 @@ export default function FeedbackPanel({ detectedFreq, detectedMidi, targetMidi, 
                  borderBottom: '1px solid rgb(226,232,240)',
                  borderRadius: '0 8px 8px 0',
                }}>
-            {/* Ball needle */}
             <div
               className={`absolute left-1/2 w-3 h-3 rounded-full -translate-x-1/2 translate-y-1/2 shadow-md z-20 transition-all duration-150 ${hasDetection ? NEEDLE_BG[band] : 'bg-white border border-zinc-200'}`}
               style={{ bottom: `${hasDetection ? needlePercent(centsFromNearest) : 50}%` }}

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { SETTINGS } from '../lib/constants';
 import { freqToMidi, midiToFreq, median, rms, centsOff } from '../lib/music';
 import { yinPitchDetect, hpsPitchDetect, fuseDetectors, extractFftPeaks } from '../lib/pitch-detection';
@@ -49,7 +49,7 @@ export function usePitchDetector(getContext) {
 
     const a = audio.current;
     [a.source, a.gain, a.hp, a.lp, a.analyser].forEach(node => {
-      if (node) try { node.disconnect(); } catch (_) {}
+      if (node) try { node.disconnect(); } catch { /* ignore */ }
     });
     if (a.stream) a.stream.getTracks().forEach(t => t.stop());
     audio.current = { analyser: null, source: null, gain: null, hp: null, lp: null, stream: null, timeData: null, freqData: null };
@@ -94,6 +94,7 @@ export function usePitchDetector(getContext) {
     return t.displayedMidi;
   }, []);
 
+  const analyzeRef = useRef(null);
   const analyze = useCallback(() => {
     const a = audio.current;
     if (!a.analyser || !a.timeData || !a.freqData) return;
@@ -101,7 +102,7 @@ export function usePitchDetector(getContext) {
     const ctx = getContext();
     const now = performance.now();
     if (now - timing.current.lastAnalysis < SETTINGS.analysisInterval) {
-      rafRef.current = requestAnimationFrame(analyze);
+      rafRef.current = requestAnimationFrame(analyzeRef.current);
       return;
     }
     timing.current.lastAnalysis = now;
@@ -122,7 +123,7 @@ export function usePitchDetector(getContext) {
         setState(prev => ({ ...prev, frequency: null, midi: null, inputLevel, status: 'paused', harmonics: [] }));
         timing.current.lastUiUpdate = now;
       }
-      rafRef.current = requestAnimationFrame(analyze);
+      rafRef.current = requestAnimationFrame(analyzeRef.current);
       return;
     }
 
@@ -131,7 +132,7 @@ export function usePitchDetector(getContext) {
         setState(prev => ({ ...prev, frequency: null, midi: null, confidence: 0, inputLevel, active: true, status: 'low_signal', harmonics: [] }));
         timing.current.lastUiUpdate = now;
       }
-      rafRef.current = requestAnimationFrame(analyze);
+      rafRef.current = requestAnimationFrame(analyzeRef.current);
       return;
     }
 
@@ -149,7 +150,7 @@ export function usePitchDetector(getContext) {
         setState(prev => ({ ...prev, frequency: null, midi: null, confidence: fused.confidence, inputLevel, active: true, status: 'uncertain', harmonics: [] }));
         timing.current.lastUiUpdate = now;
       }
-      rafRef.current = requestAnimationFrame(analyze);
+      rafRef.current = requestAnimationFrame(analyzeRef.current);
       return;
     }
 
@@ -175,8 +176,9 @@ export function usePitchDetector(getContext) {
       timing.current.lastUiUpdate = now;
     }
 
-    rafRef.current = requestAnimationFrame(analyze);
+    rafRef.current = requestAnimationFrame(analyzeRef.current);
   }, [getContext, getStableDisplayMidi]);
+  useLayoutEffect(() => { analyzeRef.current = analyze; });
 
   const start = useCallback(async () => {
     cleanup();
@@ -218,8 +220,8 @@ export function usePitchDetector(getContext) {
     a.lp.connect(a.analyser);
 
     setState(prev => ({ ...prev, active: true, status: 'listening' }));
-    rafRef.current = requestAnimationFrame(analyze);
-  }, [getContext, cleanup, analyze]);
+    rafRef.current = requestAnimationFrame(analyzeRef.current);
+  }, [getContext, cleanup]);
 
   const setPaused = useCallback((val) => { config.current.paused = val; }, []);
 

@@ -2,12 +2,11 @@ import { useMemo } from 'react';
 import { IS_BLACK_KEY, NOTE_NAMES, SOLFEGE_NAMES } from '../lib/constants';
 import PianoKey from './PianoKey';
 
-export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics = [], lowerMidi, upperMidi, onKeyClick, notation = 'scientific' }) {
+export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics = [], lowerMidi, upperMidi, onKeyClick, notation = 'scientific', highlight }) {
   const baseMidi = (octave + 1) * 12;
   const isTargetOctave = targetMidi != null && Math.floor(targetMidi / 12) - 1 === octave;
   const isDetectedOctave = detectedMidi != null && Math.floor(detectedMidi / 12) - 1 === octave;
 
-  // Build a map of midi → intensity for this octave's keys
   const harmonicMap = useMemo(() => {
     const map = new Map();
     for (const h of harmonics) {
@@ -33,6 +32,7 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
           const midi = baseMidi + i;
           const label = notation === 'solfege' ? SOLFEGE_NAMES[i] : name;
           const inRange = lowerMidi != null && upperMidi != null ? midi >= lowerMidi && midi <= upperMidi : true;
+          const highlightOverride = highlight ? highlight(midi) : null;
           return (
             <PianoKey
               key={midi}
@@ -43,6 +43,7 @@ export default function OctaveBox({ octave, targetMidi, detectedMidi, harmonics 
               inRange={inRange}
               label={label}
               onClick={() => onKeyClick?.(midi)}
+              highlightOverride={highlightOverride}
             />
           );
         })}

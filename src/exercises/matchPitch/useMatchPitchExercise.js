@@ -1,5 +1,6 @@
-import { useReducer, useCallback, useRef, useEffect } from 'react';
-import { midiToFreq, centsOff } from '../lib/music';
+import { useReducer, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
+import { midiToFreq, centsOff } from '../../lib/music';
+import { pickRandomMidi } from '../../lib/random';
 
 /*
   Phases:
@@ -47,25 +48,15 @@ function reducer(state, action) {
   }
 }
 
-function pickRandom(lo, hi, exclude) {
-  const range = hi - lo + 1;
-  if (range <= 1) return lo;
-  let next;
-  do {
-    next = lo + Math.floor(Math.random() * range);
-  } while (next === exclude && range > 1);
-  return next;
-}
-
 /**
  * config shape: { lowerMidi, upperMidi, centsGreen, holdDurationMs, silenceTimeoutMs, toneDurationMs }
  */
-export function useExercise(tonePlayer, config) {
+export function useMatchPitchExercise(tonePlayer, config) {
   const [state, dispatch] = useReducer(reducer, INITIAL);
 
   // ── Latest values from React render, readable inside rAF / async callbacks ──
   const latest = useRef({ phase: 'idle', config });
-  latest.current = { phase: state.phase, config };
+  useLayoutEffect(() => { latest.current = { phase: state.phase, config }; });
 
   // ── Mutable loop state (never triggers renders) ──
   const loop = useRef({
@@ -146,7 +137,7 @@ export function useExercise(tonePlayer, config) {
           if (L.cancelled) return;
 
           const c = latest.current.config;
-          const next = pickRandom(c.lowerMidi, c.upperMidi, L.target);
+          const next = pickRandomMidi(c.lowerMidi, c.upperMidi, L.target);
           L.target = next;
           L.progress = 0;
           dispatch({ type: 'START', targetMidi: next });

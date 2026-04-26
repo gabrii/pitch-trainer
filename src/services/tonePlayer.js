@@ -7,9 +7,10 @@ const FADE_IN = 0.06;
 const FADE_OUT = 0.12;
 const SAMPLE_DURATION_MS = 4000;
 
-export function useTonePlayer(getContext, audioMode = 'sine') {
+export function useTonePlayer(getContext) {
   const activeRef = useRef(null); // { node, gain, timeout } for current playback
   const volumeRef = useRef(SETTINGS.toneGain);
+  const audioModeRef = useRef('sine');
 
   const stop = useCallback(() => {
     const a = activeRef.current;
@@ -26,7 +27,7 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
         a.gain.gain.linearRampToValueAtTime(0, ctx.currentTime + FADE_OUT);
       }
       a.node.stop(ctx.currentTime + FADE_OUT + 0.01);
-    } catch (_) {}
+    } catch { /* ignore */ }
   }, [getContext]);
 
   // Play via oscillator (sine wave)
@@ -70,7 +71,7 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
     let buffer;
     try {
       buffer = await loadSample(midi, ctx);
-    } catch (_) {
+    } catch {
       return playSine(midi, durationMs);
     }
 
@@ -112,11 +113,11 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
 
   /** Play a MIDI note. In 'piano' mode uses samples; in 'sine' mode uses oscillator. */
   const play = useCallback((midi, durationMs = SETTINGS.toneDurationMs) => {
-    if (audioMode === 'piano' && hasSample(midi)) {
+    if (audioModeRef.current === 'piano' && hasSample(midi)) {
       return playSample(midi, durationMs);
     }
     return playSine(midi, durationMs);
-  }, [audioMode, playSample, playSine]);
+  }, [playSample, playSine]);
 
   // Success chime always uses oscillators (chord with microtonal intervals)
   const playSuccess = useCallback((midi) => {
@@ -149,8 +150,9 @@ export function useTonePlayer(getContext, audioMode = 'sine') {
   }, [getContext, stop]);
 
   const setVolume = useCallback((v) => { volumeRef.current = v; }, []);
+  const setAudioMode = useCallback((m) => { audioModeRef.current = m; }, []);
 
   useEffect(() => stop, [stop]);
 
-  return { play, stop, playSuccess, setVolume };
+  return { play, playSine, playSample, stop, playSuccess, setVolume, setAudioMode };
 }

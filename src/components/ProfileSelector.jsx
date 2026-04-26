@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, RotateCcw } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../contexts/settingsHooks';
 import Modal from './Modal';
 import { Tooltip } from './Tooltip';
 

@@ -39,6 +39,7 @@ export function Tooltip({ content, children }) {
       {open && (
         <FloatingPortal>
           <div
+            // eslint-disable-next-line react-hooks/refs
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
@@ -61,13 +62,13 @@ export function TipIcon() {
   );
 }
 
-// Convenience: a full-width label (or span) that shows a tooltip on hover over the text+icon
-export function LabelWithTip({ as: Tag = 'label', tip, className, children }) {
+// Convenience: a label that shows a tooltip on hover over the text+icon
+export function LabelWithTip({ tip, className, children }) {
   const el = (
-    <Tag className={className ?? 'text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none'}>
+    <label className={className ?? 'text-sm text-zinc-500 w-20 shrink-0 flex items-center gap-0.5 cursor-default select-none'}>
       {children}
       {tip && <TipIcon />}
-    </Tag>
+    </label>
   );
   return tip ? <Tooltip content={tip}>{el}</Tooltip> : el;
 }

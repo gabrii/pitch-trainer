@@ -1,5 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { useSettings } from '../contexts/SettingsContext';
+import { useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 
 const CAP = 50; // ±50 cents range
 
@@ -19,11 +18,12 @@ const LINE_COLORS = {
 const MAX_POINTS = 200;
 const NULL_SENTINEL = -999;
 
-export default function AccuracyChart({ centsFromTarget, hasDetection, height = 160, roundedRight = true }) {
-  const { derived } = useSettings();
+export default function AccuracyChart({ cents, centsFromTarget, hasDetection, visualGood = 5, visualWarn = 15, height = 160, roundedRight = true }) {
+  // cents prop is the canonical name; centsFromTarget kept for back-compat
+  const centsValue = cents ?? centsFromTarget ?? 0;
   // Latest thresholds readable inside the rAF draw loop without restarting it
-  const thresholdsRef = useRef({ good: derived.visualGood, warn: derived.visualWarn });
-  thresholdsRef.current = { good: derived.visualGood, warn: derived.visualWarn };
+  const thresholdsRef = useRef({ good: visualGood, warn: visualWarn });
+  useLayoutEffect(() => { thresholdsRef.current = { good: visualGood, warn: visualWarn }; });
 
   const canvasRef = useRef(null);
   const pointsRef = useRef([]);
@@ -32,9 +32,9 @@ export default function AccuracyChart({ centsFromTarget, hasDetection, height = 
   // Push new data point
   useEffect(() => {
     const pts = pointsRef.current;
-    pts.push(hasDetection ? Math.max(-CAP, Math.min(CAP, centsFromTarget)) : NULL_SENTINEL);
+    pts.push(hasDetection ? Math.max(-CAP, Math.min(CAP, centsValue)) : NULL_SENTINEL);
     if (pts.length > MAX_POINTS) pts.shift();
-  }, [centsFromTarget, hasDetection]);
+  }, [centsValue, hasDetection]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -81,7 +81,6 @@ export default function AccuracyChart({ centsFromTarget, hasDetection, height = 
     // Draw data line
     const pts = pointsRef.current;
     if (pts.length < 2) {
-      rafRef.current = requestAnimationFrame(draw);
       return;
     }
 
@@ -142,11 +141,14 @@ export default function AccuracyChart({ centsFromTarget, hasDetection, height = 
       }
     }
 
-    rafRef.current = requestAnimationFrame(draw);
   }, []);
 
   useEffect(() => {
-    rafRef.current = requestAnimationFrame(draw);
+    const tick = () => {
+      draw();
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
