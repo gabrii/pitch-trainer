@@ -127,6 +127,11 @@ export function useMatchPitchExercise(tonePlayer, config) {
 
       if (L.progress >= 1) {
         timers.current.holdRaf = null;
+        if (timers.current.silence) {
+          clearTimeout(timers.current.silence);
+          timers.current.silence = null;
+        }
+        L.lastUserMidi = null;
         dispatch({ type: 'SUCCESS' });
 
         (async () => {
