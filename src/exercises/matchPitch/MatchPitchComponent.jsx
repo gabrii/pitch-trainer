@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { Play, SkipForward, Square } from 'lucide-react';
+import { Play, RotateCcw, SkipForward, Square } from 'lucide-react';
 import { useMatchPitchExercise } from './useMatchPitchExercise';
 import { usePitchDetectorControl, usePitchDetectorState } from '../../services/PitchDetectorProvider';
 import Piano from '../../components/Piano';
@@ -41,6 +41,10 @@ export default function MatchPitchComponent({ runtime }) {
     ex.start(pickRandomMidi(exercise.lowerMidi, exercise.upperMidi));
   }, [exercise.lowerMidi, exercise.upperMidi, ex]);
 
+  const handleReplay = useCallback(() => {
+    if (exerciseTarget != null) ex.start(exerciseTarget);
+  }, [ex, exerciseTarget]);
+
   const handleKeyClick = useCallback((midi) => {
     if (midi < exercise.lowerMidi) setExercise('lowerMidi', midi);
     if (midi > exercise.upperMidi) setExercise('upperMidi', midi);
@@ -56,7 +60,6 @@ export default function MatchPitchComponent({ runtime }) {
     <div className="space-y-4">
       {/* Status row */}
       <div className="flex items-center gap-2 flex-wrap">
-        <PhasePill phase={phase} stylesMap={BASE_PHASE_STYLES} hint={hint} />
         {micActive && !isRunning && (
           <Tooltip content="Play a random note from your range, then try to match it with your voice.">
             <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-violet-500 text-white font-semibold text-sm">
@@ -70,6 +73,12 @@ export default function MatchPitchComponent({ runtime }) {
         )}
         {isRunning && (
           <>
+            <Tooltip content="Replay the current target note.">
+              <button onClick={handleReplay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-violet-100 border border-violet-200 text-violet-700 font-semibold text-sm">
+                <RotateCcw size={14} />
+                Replay
+              </button>
+            </Tooltip>
             <Tooltip content="Skip this note and move on to a new random one.">
               <button onClick={handlePlay} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700 font-semibold text-sm">
                 <SkipForward size={14} />
@@ -84,6 +93,9 @@ export default function MatchPitchComponent({ runtime }) {
             </Tooltip>
           </>
         )}
+        <div className="ml-auto">
+          <PhasePill phase={phase} stylesMap={BASE_PHASE_STYLES} hint={hint} />
+        </div>
       </div>
 
       {/* Piano */}
